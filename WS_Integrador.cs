@@ -1058,7 +1058,7 @@ namespace WS_itec2
                             // Si genera confirmaciones MULTIPLES por ODP ------------------------------------------------
                             if (ConfigurationManager.AppSettings["ConfirmacionMultiplePorODP"].ToString() == "True")
                             {
-                                //Cuando cambie de ODP debe cargar la estructura con la API y no sea elprimer registro -----
+                                //Cuando cambie de ODP debe cargar la estructura con la API y no sea el primer registro -----
                                 if (myData.Tables[0].Rows[i]["Folio"].ToString().Trim() != var_Folio && var_Folio != "")
                                 {
                                     //Crea body para llamado con estructura de variable cargada ---
