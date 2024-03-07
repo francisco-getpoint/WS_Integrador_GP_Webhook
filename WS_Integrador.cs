@@ -631,93 +631,93 @@ namespace WS_itec2
             [DataMember(Order = 1)]
             public string code { get; set; }
 
-            [DataMember(Order = 2)]
-            public string address { get; set; }
+            //[DataMember(Order = 2)]
+            //public string address { get; set; }
 
-            [DataMember(Order = 3)]
-            public string reference { get; set; }
+            //[DataMember(Order = 3)]
+            //public string reference { get; set; }
 
-            [DataMember(Order = 4)]
-            public string city { get; set; }
+            //[DataMember(Order = 4)]
+            //public string city { get; set; }
 
-            [DataMember(Order = 5)]
-            public string country { get; set; }
+            //[DataMember(Order = 5)]
+            //public string country { get; set; }
 
-            [DataMember(Order = 6)]
-            public string lat { get; set; }
+            //[DataMember(Order = 6)]
+            //public string lat { get; set; }
 
-            [DataMember(Order = 7)]
-            public string lng { get; set; }
+            //[DataMember(Order = 7)]
+            //public string lng { get; set; }
 
-            [DataMember(Order = 8)]
-            public string name { get; set; }
+            //[DataMember(Order = 8)]
+            //public string name { get; set; }
 
-            [DataMember(Order = 9)]
-            public string client_name { get; set; }
+            //[DataMember(Order = 9)]
+            //public string client_name { get; set; }
 
-            [DataMember(Order = 10)]
-            public string client_code { get; set; }
+            //[DataMember(Order = 10)]
+            //public string client_code { get; set; }
 
-            [DataMember(Order = 11)]
-            public string address_type { get; set; }
+            //[DataMember(Order = 11)]
+            //public string address_type { get; set; }
 
-            [DataMember(Order = 12)]
-            public string contact_name { get; set; }
+            //[DataMember(Order = 12)]
+            //public string contact_name { get; set; }
 
-            [DataMember(Order = 13)]
-            public string contact_phone { get; set; }
+            //[DataMember(Order = 13)]
+            //public string contact_phone { get; set; }
 
-            [DataMember(Order = 14)]
-            public string contact_email { get; set; }
+            //[DataMember(Order = 14)]
+            //public string contact_email { get; set; }
 
-            [DataMember(Order = 15)]
-            public string additional_contact_name { get; set; }
+            //[DataMember(Order = 15)]
+            //public string additional_contact_name { get; set; }
 
-            [DataMember(Order = 16)]
-            public string additional_contact_phone { get; set; }
+            //[DataMember(Order = 16)]
+            //public string additional_contact_phone { get; set; }
 
-            [DataMember(Order = 17)]
-            public string additional_contact_email { get; set; }
+            //[DataMember(Order = 17)]
+            //public string additional_contact_email { get; set; }
 
-            [DataMember(Order = 18)]
-            public string start_contact_name { get; set; }
+            //[DataMember(Order = 18)]
+            //public string start_contact_name { get; set; }
 
-            [DataMember(Order = 19)]
-            public string start_contact_phone { get; set; }
+            //[DataMember(Order = 19)]
+            //public string start_contact_phone { get; set; }
 
-            [DataMember(Order = 20)]
-            public string start_contact_email { get; set; }
+            //[DataMember(Order = 20)]
+            //public string start_contact_email { get; set; }
 
-            [DataMember(Order = 21)]
-            public string near_contact_name { get; set; }
+            //[DataMember(Order = 21)]
+            //public string near_contact_name { get; set; }
 
-            [DataMember(Order = 22)]
-            public string near_contact_phone { get; set; }
+            //[DataMember(Order = 22)]
+            //public string near_contact_phone { get; set; }
 
-            [DataMember(Order = 23)]
-            public string near_contact_email { get; set; }
+            //[DataMember(Order = 23)]
+            //public string near_contact_email { get; set; }
 
-            [DataMember(Order = 24)]
-            public string delivered_contact_name { get; set; }
+            //[DataMember(Order = 24)]
+            //public string delivered_contact_name { get; set; }
 
-            [DataMember(Order = 25)]
-            public string delivered_contact_phone { get; set; }
+            //[DataMember(Order = 25)]
+            //public string delivered_contact_phone { get; set; }
 
-            [DataMember(Order = 26)]
-            public string delivered_contact_email { get; set; }
+            //[DataMember(Order = 26)]
+            //public string delivered_contact_email { get; set; }
 
-            [DataMember(Order = 27)]
-            public int service_time { get; set; }
+            //[DataMember(Order = 27)]
+            //public int service_time { get; set; }
 
-            [DataMember(Order = 28)]
-            public string sales_zone_code { get; set; }
+            //[DataMember(Order = 28)]
+            //public string sales_zone_code { get; set; }
 
-            [DataMember(Order = 29)]
+            //[DataMember(Order = 29)]
 
-            public List<PedidoDrivin_time_windows> time_windows = new List<PedidoDrivin_time_windows>();
+            //public List<PedidoDrivin_time_windows> time_windows = new List<PedidoDrivin_time_windows>();
 
-            [DataMember(Order = 30)]
-            public string tags { get; set; }
+            //[DataMember(Order = 30)]
+            //public string tags { get; set; }
 
             [DataMember(Order = 31)]
 
@@ -740,63 +740,63 @@ namespace WS_itec2
             [DataMember(Order = 1)]
             public string code { get; set; }
 
-            [DataMember(Order = 2)]
-            public string alt_code { get; set; }
+            //[DataMember(Order = 2)]
+            //public string alt_code { get; set; }
 
-            [DataMember(Order = 3)]
-            public string description { get; set; }
+            //[DataMember(Order = 3)]
+            //public string description { get; set; }
 
-            [DataMember(Order = 4)]
-            public string category { get; set; }
+            //[DataMember(Order = 4)]
+            //public string category { get; set; }
 
-            [DataMember(Order = 5)]
-            public int units_1 { get; set; }
+            //[DataMember(Order = 5)]
+            //public int units_1 { get; set; }
 
-            [DataMember(Order = 6)]
-            public int units_2 { get; set; }
+            //[DataMember(Order = 6)]
+            //public int units_2 { get; set; }
 
-            [DataMember(Order = 7)]
-            public int units_3 { get; set; }
+            //[DataMember(Order = 7)]
+            //public int units_3 { get; set; }
 
-            [DataMember(Order = 8)]
-            public int position { get; set; }
+            //[DataMember(Order = 8)]
+            //public int position { get; set; }
 
             [DataMember(Order = 9)]
             public string delivery_date { get; set; }
 
-            [DataMember(Order = 10)]
-            public int priority { get; set; }
+            //[DataMember(Order = 10)]
+            //public int priority { get; set; }
 
-            [DataMember(Order = 11)]
-            public string custom_1 { get; set; }
+            //[DataMember(Order = 11)]
+            //public string custom_1 { get; set; }
 
-            [DataMember(Order = 12)]
-            public string custom_2 { get; set; }
+            //[DataMember(Order = 12)]
+            //public string custom_2 { get; set; }
 
-            [DataMember(Order = 13)]
-            public string custom_3 { get; set; }
+            //[DataMember(Order = 13)]
+            //public string custom_3 { get; set; }
 
-            [DataMember(Order = 14)]
-            public string custom_4 { get; set; }
+            //[DataMember(Order = 14)]
+            //public string custom_4 { get; set; }
 
-            [DataMember(Order = 15)]
-            public string custom_5 { get; set; }
+            //[DataMember(Order = 15)]
+            //public string custom_5 { get; set; }
 
-            [DataMember(Order = 16)]
-            public string supplier_code { get; set; }
+            //[DataMember(Order = 16)]
+            //public string supplier_code { get; set; }
 
-            [DataMember(Order = 17)]
-            public string supplier_name { get; set; }
+            //[DataMember(Order = 17)]
+            //public string supplier_name { get; set; }
 
-            [DataMember(Order = 18)]
-            public string deploy_date { get; set; }
+            //[DataMember(Order = 18)]
+            //public string deploy_date { get; set; }
 
             [DataMember(Order = 19)]
 
             public List<PedidoDrivin_items> items = new List<PedidoDrivin_items>();
 
-            [DataMember(Order = 20)]
-            public List<PedidoDrivin_pickups> pickups { get; set; } //= new List<PedidoDrivin_pickups>();
+            //[DataMember(Order = 20)]
+            //public List<PedidoDrivin_pickups> pickups { get; set; } //= new List<PedidoDrivin_pickups>();
         }
 
         [DataContract]
@@ -814,11 +814,11 @@ namespace WS_itec2
             [DataMember(Order = 4)]
             public int units_1 { get; set; }
 
-            [DataMember(Order = 5)]
-            public int units_2 { get; set; }
+            //[DataMember(Order = 5)]
+            //public int units_2 { get; set; }
 
-            [DataMember(Order = 6)]
-            public int units_3 { get; set; }
+            //[DataMember(Order = 6)]
+            //public int units_3 { get; set; }
         }
 
         [DataContract]
@@ -3218,7 +3218,7 @@ namespace WS_itec2
                                             else
                                             {
                                                 //Si es error rescata descripcion error
-                                                Descripcion = rss["Response"]["Description"].ToString();
+                                                Descripcion = rss["response"]["description"].ToString();
 
                                                 //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
                                                 result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
@@ -3254,13 +3254,48 @@ namespace WS_itec2
                                     }
                                     else //status Error <> 200
                                     {
+                                        //Respuesta ERROR
+                                        //{
+                                        //    "success": false,
+                                        //    "status": "Error",
+                                        //    "response": 
+                                        //    {
+                                        //        "description": "Invalid address",
+                                        //        "details": 
+                                        //             [.... campo erroneo y json enviado....
+
+                                        JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+                                        string Resultado;
+                                        string Descripcion;
+
+                                        try
+                                        {
+                                            Resultado = rss["status"].ToString(); //OK - Error
+                                            Descripcion = ""; // rss["status"].ToString(); //OK - ERROR
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Resultado = "ERROR";
+                                            Descripcion = "Respuesta no retorna estructura definida";
+                                        }
+
+                                        //Si es error rescata descripcion error
+                                        Descripcion = rss["response"]["description"].ToString();
+
+                                        Respuesta = "Error" +
+                                                    ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                    ". Resultado: " + Resultado.Trim() +
+                                                    ". Descripcion: " + Descripcion.Trim();
+
+                                        LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+
                                         //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
                                         result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                                                                                  3,
                                                                                                                                  ListaIdProcesados.Trim()); //Procesado con error
 
-                                        Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
-                                        LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                        //Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                        //LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
                                     }
 
                                     //Inicializa la estructura principal
@@ -3409,59 +3444,59 @@ namespace WS_itec2
                                 //9   Telefono
 
                                 //carga campos clase principal clientes ---------
-                                Drivin_clients.code = ""; //": "201000345",
-                                Drivin_clients.address = Palabras[6].ToString(); //La Oración 43",
-                                Drivin_clients.reference = ""; //Departamento 208",
-                                Drivin_clients.city = Palabras[5].ToString(); //Las Condes",
-                                Drivin_clients.country = Palabras[2].ToString(); //Chile",
-                                Drivin_clients.lat = ""; //-33.401779",
-                                Drivin_clients.lng = ""; //-70.556216",
-                                Drivin_clients.name = myData.Tables[0].Rows[i]["RazonSocial"].ToString(); ; //Nicolas Aguirre",
-                                Drivin_clients.client_name = myData.Tables[0].Rows[i]["RazonSocial"].ToString(); //Nicolas Aguirre",
-                                //Drivin_clients.client_code": null,
-                                Drivin_clients.address_type = ""; //Departamento",
-                                Drivin_clients.contact_name = Palabras[0]; //Nicolas Aguirre",
-                                Drivin_clients.contact_phone = Palabras[9]; //9999999999",
-                                Drivin_clients.contact_email = Palabras[8]; //nicolasaguirre@email.com",
-                                Drivin_clients.additional_contact_name = ""; //Alexandra Araujo",
-                                Drivin_clients.additional_contact_phone = ""; //22222222222",
-                                Drivin_clients.additional_contact_email = ""; //alexandraraujo@email.com",
-                                Drivin_clients.start_contact_name = ""; //Alexandra Araujo",
-                                Drivin_clients.start_contact_phone = ""; //22222222222",
-                                Drivin_clients.start_contact_email = ""; //alexandraraujo@email.com",
-                                Drivin_clients.near_contact_name = ""; //Alexandra Araujo",
-                                Drivin_clients.near_contact_phone = ""; //22222222222",
-                                Drivin_clients.near_contact_email = ""; //alexandraraujo@email.com",
-                                Drivin_clients.delivered_contact_name = Palabras[0]; //Nicolas Aguirre",
-                                Drivin_clients.delivered_contact_phone = Palabras[9]; //9999999999",
-                                Drivin_clients.delivered_contact_email = Palabras[8]; //nicolasaguirre@email.com",
-                                Drivin_clients.service_time = 0; // ": 15,
-                                Drivin_clients.sales_zone_code = ""; //Zona Sur",
+                                Drivin_clients.code = myData.Tables[0].Rows[i]["Dato2Det"].ToString(); //": "201000345",
+                                //Drivin_clients.address = Palabras[6].Trim(); //La Oración 43",
+                                //Drivin_clients.reference = ""; //Departamento 208",
+                                //Drivin_clients.city = Palabras[5].Trim(); //Las Condes",
+                                //Drivin_clients.country = Palabras[2].Trim(); //Chile",
+                                //Drivin_clients.lat = ""; //-33.401779",
+                                //Drivin_clients.lng = ""; //-70.556216",
+                                //Drivin_clients.name = myData.Tables[0].Rows[i]["RazonSocial"].ToString(); ; //Nicolas Aguirre",
+                                //Drivin_clients.client_name = myData.Tables[0].Rows[i]["RazonSocial"].ToString(); //Nicolas Aguirre",
+                                //Drivin_clients.client_code = myData.Tables[0].Rows[i]["RutCliente"].ToString();
+                                //Drivin_clients.address_type = ""; //Departamento",
+                                //Drivin_clients.contact_name = Palabras[0].Trim(); //Nicolas Aguirre",
+                                //Drivin_clients.contact_phone = Palabras[9].Trim(); //9999999999",
+                                //Drivin_clients.contact_email = Palabras[8].Trim(); //nicolasaguirre@email.com",
+                                //Drivin_clients.additional_contact_name = ""; //Alexandra Araujo",
+                                //Drivin_clients.additional_contact_phone = ""; //22222222222",
+                                //Drivin_clients.additional_contact_email = ""; //alexandraraujo@email.com",
+                                //Drivin_clients.start_contact_name = ""; //Alexandra Araujo",
+                                //Drivin_clients.start_contact_phone = ""; //22222222222",
+                                //Drivin_clients.start_contact_email = ""; //alexandraraujo@email.com",
+                                //Drivin_clients.near_contact_name = ""; //Alexandra Araujo",
+                                //Drivin_clients.near_contact_phone = ""; //22222222222",
+                                //Drivin_clients.near_contact_email = ""; //alexandraraujo@email.com",
+                                //Drivin_clients.delivered_contact_name = Palabras[0].Trim(); //Nicolas Aguirre",
+                                //Drivin_clients.delivered_contact_phone = Palabras[9].Trim(); //9999999999",
+                                //Drivin_clients.delivered_contact_email = Palabras[8].Trim(); //nicolasaguirre@email.com",
+                                //Drivin_clients.service_time = 0; // ": 15,
+                                //Drivin_clients.sales_zone_code = ""; //Zona Sur",
 
                                 //carga campos para 1 item en clase datos --------
-                                Drivin_time_windows.start = "00:00";
-                                Drivin_time_windows.end = "00:00";
-                                Drivin_clients.time_windows.Add(Drivin_time_windows);
+                                //Drivin_time_windows.start = "00:00";
+                                //Drivin_time_windows.end = "00:00";
+                                //Drivin_clients.time_windows.Add(Drivin_time_windows);
 
                                 //carga campos para 1 item en clase Order -----------
                                 Drivin_orders.code = myData.Tables[0].Rows[i]["NumeroReferencia"].ToString(); //100203955",
-                                Drivin_orders.alt_code = ""; //996",
-                                Drivin_orders.description = ""; //",
-                                Drivin_orders.category = ""; //Delivery",
+                                //Drivin_orders.alt_code = ""; //996",
+                                //Drivin_orders.description = ""; //",
+                                //Drivin_orders.category = ""; //Delivery",
                                 //Drivin_orders.units_1 = 0; //
                                 //Drivin_orders.units_2 = 0; //
                                 //Drivin_orders.units_3 = 0; //
-                                Drivin_orders.position = 0; // ": 1,
-                                Drivin_orders.delivery_date = ""; //2024-02-14",
-                                Drivin_orders.priority = 0; // ": 0,
-                                Drivin_orders.custom_1 = ""; //caja amarilla",
+                                //Drivin_orders.position = 0; // ": 1,
+                                Drivin_orders.delivery_date = DateTime.Parse(myData.Tables[0].Rows[i]["FechaProceso"].ToString()).ToString("yyyy-MM-dd"); //2024-02-14",
+                                //Drivin_orders.priority = 0; // ": 0,
+                                //Drivin_orders.custom_1 = ""; //caja amarilla",
                                 //Drivin_orders.custom_2 = ""; //
                                 //Drivin_orders.custom_3 = ""; //
                                 //Drivin_orders.custom_4 = ""; //
                                 //Drivin_orders.custom_5 = ""; //
-                                Drivin_orders.supplier_code = ""; //Falabella.com",
-                                Drivin_orders.supplier_name = ""; //Falabella.com",
-                                Drivin_orders.deploy_date = ""; //2024-02-14",
+                                //Drivin_orders.supplier_code = ""; //Falabella.com",
+                                //Drivin_orders.supplier_name = ""; //Falabella.com",
+                                //Drivin_orders.deploy_date = ""; //2024-02-14",
 
                                 //Busca los detalles relacionados y los agrega a la cabecera
                                 string CondicionBusqueda = "IntId = " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
@@ -3473,28 +3508,13 @@ namespace WS_itec2
                                     Drivin_items = new PedidoDrivin_items(); //Det_Confirmacion_SDD();
 
                                     Drivin_items.code = fila["CodigoArticulo"].ToString(); ; // 999890922",
-                                    Drivin_items.description = fila["CodigoArticulo"].ToString(); // "BUZO ADIDAS TALLA 36/ AZUL",
+                                    Drivin_items.description = fila["Dato1Det"].ToString(); // "BUZO ADIDAS TALLA 36/ AZUL",
                                     Drivin_items.units = int.Parse(fila["Cantidad"].ToString()); //1,
                                     Drivin_items.units_1 = int.Parse(fila["Cantidad"].ToString()); //1,
                                     //Drivin_items.units_2": null,
                                     //Drivin_items.units_3": null
 
                                     Drivin_orders.items.Add(Drivin_items);
-
-                                    //Detalle.Linea = int.Parse(fila["Linea"].ToString()); // 1;
-                                    //Detalle.CodigoArticulo = fila["CodigoArticulo"].ToString(); // "5";
-                                    //Detalle.UnidadVenta = fila["UnidadMedida"].ToString(); // "UN";
-                                    //Detalle.CantidadSolicitada = decimal.Parse(fila["Cantidad"].ToString()); // 150;
-                                    //Detalle.ItemReferencia = int.Parse(fila["ItemReferencia"].ToString()); // 0;
-                                    //Detalle.FecVenctoSol = DateTime.Parse(fila["FechaVectoDesp"].ToString()).ToString("dd-MM-yyyy");
-                                    //Detalle.CantidadDespachada = decimal.Parse(fila["CantidadProc"].ToString()); // 100;
-                                    //Detalle.LoteSerieDesp = fila["NroSerieDesp"].ToString(); // "132561";
-                                    //Detalle.FecVenctoDesp = DateTime.Parse(fila["FechaVectoDesp"].ToString()).ToString("dd-MM-yyyy");
-                                    //Detalle.Dato1 = fila["Dato1Det"].ToString();
-                                    //Detalle.Dato2 = fila["Dato2Det"].ToString();
-                                    //Detalle.Dato3 = fila["Dato3Det"].ToString();
-
-                                    //Cabecera.Items.Add(Detalle);
                                 }
 
                                 //CabJson.cabeceras.Add(Cabecera);
@@ -3593,7 +3613,7 @@ namespace WS_itec2
                                             else
                                             {
                                                 //Si es error rescata descripcion error
-                                                Descripcion = rss["Response"]["Description"].ToString();
+                                                Descripcion = rss["response"]["description"].ToString();
 
                                                 //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
                                                 result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
@@ -3629,13 +3649,48 @@ namespace WS_itec2
                                     }
                                     else //status Error <> 200
                                     {
+                                        //Respuesta ERROR
+                                        //{
+                                        //    "success": false,
+                                        //    "status": "Error",
+                                        //    "response": 
+                                        //    {
+                                        //        "description": "Invalid address",
+                                        //        "details": 
+                                        //             [.... campo erroneo y json enviado....
+
+                                        JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+                                        string Resultado;
+                                        string Descripcion;
+
+                                        try
+                                        {
+                                            Resultado = rss["status"].ToString(); //OK - Error
+                                            Descripcion = ""; // rss["status"].ToString(); //OK - ERROR
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Resultado = "ERROR";
+                                            Descripcion = "Respuesta no retorna estructura definida";
+                                        }
+
+                                        //Si es error rescata descripcion error
+                                        Descripcion = rss["response"]["description"].ToString();
+
+                                        Respuesta = "Error" +
+                                                    ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                    ". Resultado: " + Resultado.Trim() +
+                                                    ". Descripcion: " + Descripcion.Trim();
+
+                                        LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+
                                         //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
                                         result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                                                                                  3,
                                                                                                                                  ""); //Procesado con error
 
-                                        Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
-                                        LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                        //Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                        //LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
                                     }
 
                                     //Inicializa variable principal
@@ -3748,7 +3803,7 @@ namespace WS_itec2
                                         else
                                         {
                                             //Si es error rescata descripcion error
-                                            Descripcion = rss["Response"]["Description"].ToString();
+                                            Descripcion = rss["response"]["description"].ToString();
 
                                             //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
                                             result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
@@ -3784,13 +3839,48 @@ namespace WS_itec2
                                 }
                                 else //status Error <> 200
                                 {
+                                    //Respuesta ERROR
+                                    //{
+                                    //    "success": false,
+                                    //    "status": "Error",
+                                    //    "response": 
+                                    //    {
+                                    //        "description": "Invalid address",
+                                    //        "details": 
+                                    //             [.... campo erroneo y json enviado....
+
+                                    JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+                                    string Resultado;
+                                    string Descripcion;
+
+                                    try
+                                    {
+                                        Resultado = rss["status"].ToString(); //OK - Error
+                                        Descripcion = ""; // rss["status"].ToString(); //OK - ERROR
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Resultado = "ERROR";
+                                        Descripcion = "Respuesta no retorna estructura definida";
+                                    }
+
+                                    //Si es error rescata descripcion error
+                                    Descripcion = rss["response"]["description"].ToString();
+
+                                    Respuesta = "Error" +
+                                                ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                ". Resultado: " + Resultado.Trim() +
+                                                ". Descripcion: " + Descripcion.Trim();
+
+                                    LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+
                                     //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
                                     result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                                                                              3,
                                                                                                                              ListaIdProcesados.Trim()); //Procesado con error
 
-                                    Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
-                                    LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                    //Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                    //LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
                                 }
 
                                 //Inicializa la estructura principal

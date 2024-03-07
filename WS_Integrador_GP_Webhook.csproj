@@ -8,8 +8,8 @@
     <ProjectGuid>{6449AB2A-03B7-4BAB-A764-D835834F29A6}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WS_Integrador_GP_Webhook_HONDA</RootNamespace>
-    <AssemblyName>WS_Integrador_GP_Webhook_HONDA</AssemblyName>
+    <RootNamespace>WS_Integrador_GP_Webhook</RootNamespace>
+    <AssemblyName>WS_Integrador_GP_Webhook</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
