@@ -814,8 +814,8 @@ namespace WS_itec2
             [DataMember(Order = 4)]
             public int units_1 { get; set; }
 
-            //[DataMember(Order = 5)]
-            //public int units_2 { get; set; }
+            [DataMember(Order = 5)]
+            public int units_2 { get; set; }
 
             //[DataMember(Order = 6)]
             //public int units_3 { get; set; }
@@ -2880,9 +2880,7 @@ namespace WS_itec2
             }
         }
 
-        //=====================================
-        // 7 - WEBHOOK ANULA DESPACHO ===========
-        //==========================================
+        // 7 - WEBHOOK ANULA DESPACHO ====================================================================================
         //      sp_proc_INT_AnulaPedidoWEBHOOK: procedimiento que carga tabla con datos para informar Anulacion de Pedido en Getpoint ----------
         //      NombreProceso = ANULA_PEDIDO
         private void AnulaPedido(string NombreProceso)
@@ -3064,12 +3062,564 @@ namespace WS_itec2
             }
         }
 
-        //=====================================
-        // 8 - API CREA PEDIDO DRIVIN ============
-        //==========================================
-        //      sp_proc_INT_CreaPedidoDrivin: procedimiento que carga tabla con datos para Crear Pedido de Driv.in ----------
+        // 8 - API CREA PEDIDO DRIVIN ====================================================================================
+        //      sp_proc_INT_CreaPedidoDrivin: procedimiento que carga tabla de integracion con datos para Crear Pedido de Driv.in -------
         //      NombreProceso = CREA_PEDIDO_DRIVIN 
         private void CreaPedidoDrivin(string NombreProceso)
+        {
+            try
+            {
+                LogInfo(NombreProceso, NombreProceso.Trim() + " - Inicio ejecucion", true);
+
+                //para evitar error de seguridad en el llamado a la API ----------
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)768; //TLS 1.1 
+                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12; // para error No se puede crear un canal seguro SSL/TLS
+
+                string stEmpId = ConfigurationManager.AppSettings["EmpId"].ToString();
+                string result = "";
+                int EmpId;
+                int EmpIdGlobal = 0;
+
+                Int32.TryParse(stEmpId, out EmpId);
+
+                //Extrae ODP (Olas de Picking) ----------
+                DataSet myData = WS_Integrador.Classes.model.InfF_Generador.ShowList_IntegraConfirmacionesJson(EmpId,
+                                                                                                               NombreProceso);
+                if (myData.Tables.Count > 0)
+                {
+                    if (myData.Tables[0].Rows.Count > 0)
+                    {
+                        //Cab_Confirmacion_SDD CabJson = new Cab_Confirmacion_SDD();
+                        //Cab2_Confirmacion_SDD Cabecera = new Cab2_Confirmacion_SDD();
+                        //Det_Confirmacion_SDD Detalle = new Det_Confirmacion_SDD();
+
+                        PedidoDrivin_Cab Drivin_Cab = new PedidoDrivin_Cab();
+                        PedidoDrivin_clients Drivin_clients = new PedidoDrivin_clients();
+                        PedidoDrivin_time_windows Drivin_time_windows = new PedidoDrivin_time_windows();
+                        PedidoDrivin_orders Drivin_orders = new PedidoDrivin_orders();
+                        PedidoDrivin_items Drivin_items = new PedidoDrivin_items();
+                        PedidoDrivin_pickups Drivin_pickups = new PedidoDrivin_pickups();
+
+                        var client = new RestClient();
+                        var request = new RestRequest(Method.GET);
+                        DataSet dsHeaders = new DataSet();
+                        string body = "";
+
+                        string ListaIdProcesados = "";
+
+                        string var_IntId = "";
+                        string var_Folio = "";
+                        string Token_ = "";
+                        string NombreCookie1 = "";
+                        string ValorCookie1 = "";
+                        string NombreCookie2 = "";
+                        string ValorCookie2 = "";
+                        int i = 0;
+
+                        //Recorre la confirmaciones de salida --------------
+                        for (i = 0; i <= myData.Tables[0].Rows.Count - 1; i++)
+                        {
+                            //Cuando cambie de ODP debe cargar la estructura con la API y no sea el primer registro -----
+                            if (myData.Tables[0].Rows[i]["Folio"].ToString().Trim() != var_Folio && var_Folio != "")
+                            {
+                                //Crea body para llamado con estructura de variable cargada ---
+                                body = JsonConvert.SerializeObject(Drivin_Cab);
+
+                                //Guarda JSON que se envia ------------------
+                                LogInfo(NombreProceso, "JSON Enviado", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code, body.Trim());
+
+                                request.AddParameter("application/json", body, ParameterType.RequestBody);
+
+                                //EJECUTA LLAMADO API ---------------------------
+                                IRestResponse response = client.Execute(request);
+
+                                LogInfo(NombreProceso, myData.Tables[0].Rows[i]["NombreProceso"].ToString() + ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim(), true);
+
+                                HttpStatusCode CodigoRetorno = response.StatusCode;
+                                //JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+
+                                string Respuesta = "";
+
+                                //Si finalizó OK --------------------------
+                                if (CodigoRetorno.Equals(HttpStatusCode.OK)) //Si la API destino retorna un status 200 marca como integrado OK ---
+                                {
+                                    //Respuesta OK:
+                                    //{
+                                    //    "success": true,
+                                    //    "status": "OK",
+                                    //    "response": 
+                                    //    {
+                                    //        "added": [],
+                                    //        "edited": 
+                                    //            [
+                                    //                "100203955"
+                                    //            ],
+                                    //        "skipped": []
+                                    //    }
+                                    //}
+
+                                    //Respuesta ERROR
+                                    //{
+                                    //    "success": false,
+                                    //    "status": "Error",
+                                    //    "response": 
+                                    //    {
+                                    //        "description": "Invalid address",
+                                    //        "details": 
+                                    //             [.... campo erroneo y json enviado....
+
+                                    LogInfo(NombreProceso, "JSON respuesta recibido", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code, response.Content.ToString());
+
+                                    JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+                                    string Resultado;
+                                    string Descripcion;
+
+                                    try
+                                    {
+                                        Resultado = rss["status"].ToString(); //OK - Error
+                                        Descripcion = ""; // rss["status"].ToString(); //OK - ERROR
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Resultado = "ERROR";
+                                        Descripcion = "Respuesta no retorna estructura definida";
+                                    }
+
+                                    if (Resultado.Trim() == "OK")
+                                    {
+                                        //Si es ok guardamos mensaje exitoso
+                                        Descripcion = "Pedido integrado correctamente en Drivin";
+
+                                        //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado Procesado 
+                                        result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                 2,
+                                                                                                                                 ListaIdProcesados.Trim()); //Procesado
+
+                                        Respuesta = "Integracion OK" +
+                                                    ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                    ". Resultado: " + Resultado.Trim() +
+                                                    ". Descripcion: " + Descripcion.Trim();
+
+                                        LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                    }
+                                    else
+                                    {
+                                        //Si es error rescata descripcion error
+                                        Descripcion = rss["response"]["description"].ToString();
+
+                                        //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
+                                        result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                 3,
+                                                                                                                                 ListaIdProcesados.Trim()); //Procesado con error
+
+                                        Respuesta = "Error" +
+                                                    ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                    ". Resultado: " + Resultado.Trim() +
+                                                    ". Descripcion: " + Descripcion.Trim();
+
+                                        LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                    }
+
+                                    //Guarda respuesta en Dato2 ODP procesada -------------
+                                    result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                EmpIdGlobal,
+                                                                                                                int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                                                                                                int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                                                                                                "Resultado: " + Resultado.Trim() + " .Descripcion: " + Descripcion.Trim());
+                                }
+                                else //status Error <> 200
+                                {
+                                    //Respuesta ERROR
+                                    //{
+                                    //    "success": false,
+                                    //    "status": "Error",
+                                    //    "response": 
+                                    //    {
+                                    //        "description": "Invalid address",
+                                    //        "details": 
+                                    //             [.... campo erroneo y json enviado....
+
+                                    JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+                                    string Resultado;
+                                    string Descripcion;
+
+                                    try
+                                    {
+                                        Resultado = rss["status"].ToString(); //OK - Error
+                                        Descripcion = ""; // rss["status"].ToString(); //OK - ERROR
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Resultado = "ERROR";
+                                        Descripcion = "Respuesta no retorna estructura definida";
+                                    }
+
+                                    //Si es error rescata descripcion error
+                                    Descripcion = rss["response"]["description"].ToString();
+
+                                    Respuesta = "Error" +
+                                                ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                ". Resultado: " + Resultado.Trim() +
+                                                ". Descripcion: " + Descripcion.Trim();
+
+                                    LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+
+                                    //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
+                                    result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                             3,
+                                                                                                                             ListaIdProcesados.Trim()); //Procesado con error
+
+                                    //Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                    //LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                }
+
+                                //Inicializa la estructura principal
+                                //CabJson = new Cab_Confirmacion_SDD();
+                                Drivin_Cab = new PedidoDrivin_Cab();
+
+                                //Inicializa lista de Id procesados
+                                ListaIdProcesados = "";
+                            }
+
+                            //Cuando cambie de Id Interno L_IntegraConfirmaciones carga estructura con la API -----
+                            if (myData.Tables[0].Rows[i]["IntId"].ToString().Trim() != var_IntId || var_IntId == "")
+                            {
+                                //Carga URL de la API del cliente para enviar la confirmacion de la SDD --------------------
+                                #region Carga URL de la API del cliente para enviar la confirmacion de la SDD 
+
+                                client = new RestClient(myData.Tables[0].Rows[i]["URL_EndPoint"].ToString().Trim());
+
+                                EmpIdGlobal = int.Parse(myData.Tables[0].Rows[i]["EmpIdGlobal"].ToString());
+
+                                client.Timeout = -1;
+
+                                //Indica el metodo de llamado de la API ----
+                                request = new RestRequest(Method.GET);
+                                switch (myData.Tables[0].Rows[i]["Metodo"].ToString().Trim())
+                                {
+                                    case "GET":
+                                        request = new RestRequest(Method.GET); //consulta
+                                        break;
+                                    case "POST":
+                                        request = new RestRequest(Method.POST); //crea
+                                        break;
+                                    case "PUT":
+                                        request = new RestRequest(Method.PUT); //modifica
+                                        break;
+                                }
+
+                                //Trae informacion para headers segun el nombre proceso -------
+                                dsHeaders = WS_Integrador.Classes.model.InfF_Generador.ShowList_EndPointHeadersJson(EmpIdGlobal,
+                                                                                                                    EmpId,
+                                                                                                                    myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                    2);
+
+                                //Trae los headers (atributo y valor) necesarios para realizar el llamado a la api segun nombre de proceso que esta integrando ----------------
+                                if (dsHeaders.Tables.Count > 0)
+                                {
+                                    for (int k = 0; k <= dsHeaders.Tables[0].Rows.Count - 1; k++)
+                                    {
+                                        //agrega key y su valor -----------
+                                        request.AddHeader(dsHeaders.Tables[0].Rows[k]["myKey"].ToString().Trim(), dsHeaders.Tables[0].Rows[k]["myValue"].ToString().Trim());
+                                    }
+                                }
+
+                                //=======================================================================
+                                //======================= ESPECIAL COAGRA ===========================
+                                //=========================================================================
+                                if (myData.Tables[0].Rows[i]["NombreProceso"].ToString().Contains("COAGRA")) //si el proceso contiene coagra debe rescatar el TOKEN para Coagra 
+                                {
+                                    Token_ = "";
+                                    NombreCookie1 = "";
+                                    ValorCookie1 = "";
+                                    NombreCookie2 = "";
+                                    ValorCookie2 = "";
+
+                                    CookieCOAGRA("COOKIE_TOKEN_COAGRA", ref Token_, ref NombreCookie1, ref ValorCookie1, ref NombreCookie2, ref ValorCookie2);
+
+                                    //Agrega Cookies obtenidas -----
+                                    request.AddCookie(NombreCookie1, ValorCookie1);
+                                    request.AddCookie(NombreCookie2, ValorCookie2);
+
+                                    //Agrega headers adicional -----
+                                    request.AddHeader("x-csrf-token", Token_);
+                                }
+                                //FIN ============== ESPECIAL PARA COAGRA, PARAMETRIZAR LUEGO =============
+
+                                //======================================================================
+                                //======================= ESPECIAL HONDA ================================
+                                //========================================================================
+                                if (myData.Tables[0].Rows[i]["NombreProceso"].ToString().Contains("HONDA")) //si el proceso contiene coagra
+                                {
+                                    Token_ = "";
+
+                                    TokenHONDA("TOKEN_HONDA", ref Token_);
+
+                                    //Agrega headers adicional -----
+                                    request.AddHeader("Authorization", Token_);
+                                }
+                                //FIN ============== ESPECIAL PARA HONDA, PARAMETRIZAR LUEGO =============
+
+                                #endregion
+
+                                //Carga Variable para generar JSON ----------------------------------------------
+
+                                //Inicializa cliente
+                                //Drivin_Cab = new PedidoDrivin_Cab();
+                                Drivin_clients = new PedidoDrivin_clients();
+                                Drivin_time_windows = new PedidoDrivin_time_windows();
+                                Drivin_orders = new PedidoDrivin_orders();
+
+                                DateTime fecha;
+                                fecha = DateTime.Now;
+
+                                //Guarda documento referencia que esta procesando ---------
+                                var_IntId = myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+
+                                //Crea lista de Id internos procesados, se usa en confirmacion multiple para marcarlos todos a la vez con OK o ERROR
+                                ListaIdProcesados = ListaIdProcesados.Trim() + var_IntId.Trim() + ";";
+
+                                //Guarda ODP que esta procesando ---------
+                                var_Folio = myData.Tables[0].Rows[i]["Folio"].ToString().Trim();
+
+                                //divide Texto1 que viene con datos concatenados
+                                string[] Palabras = myData.Tables[0].Rows[i]["Texto1Cab"].ToString().Trim().Split('¬');
+
+                                //0   s.Contacto + '¬' +
+                                //1   s.Vendedor + '¬' +
+                                //2   s.Pais + '¬' +
+                                //3   reg.DescripcionRe + '¬' +
+                                //4   ciu.DescripcionCi + '¬' +
+                                //5   com.DescripcionCo + '¬' +
+                                //6   s.Direccion + '¬' +
+                                //7   s.CodigoPostal + '¬' +
+                                //8   s.Email
+                                //9   Telefono
+
+                                //carga campos clase principal clientes ---------
+                                Drivin_clients.code = myData.Tables[0].Rows[i]["Dato2Det"].ToString(); //": "201000345",
+
+                                //carga campos para 1 item en clase Order -----------
+                                Drivin_orders.code = myData.Tables[0].Rows[i]["NumeroReferencia"].ToString(); //100203955",
+                                Drivin_orders.delivery_date = DateTime.Parse(myData.Tables[0].Rows[i]["FechaProceso"].ToString()).ToString("yyyy-MM-dd"); //2024-02-14",
+
+                                //Busca los detalles relacionados y los agrega a la cabecera
+                                string CondicionBusqueda = "IntId = " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+
+                                DataRow[] resultado = myData.Tables[0].Select(CondicionBusqueda);
+
+                                foreach (DataRow fila in resultado)
+                                {
+                                    Drivin_items = new PedidoDrivin_items(); //Det_Confirmacion_SDD();
+
+                                    Drivin_items.code = fila["CodigoArticulo"].ToString(); ; // 999890922",
+                                    Drivin_items.description = fila["Dato1Det"].ToString(); // "BUZO ADIDAS TALLA 36/ AZUL",
+                                    Drivin_items.units = int.Parse(fila["Cantidad"].ToString()); //1,
+                                    //Drivin_items.units_1 = int.Parse(fila["Valor1Det"].ToString()); //1, Volumen
+                                    Drivin_items.units_2 = int.Parse(fila["Valor1Det"].ToString()); //1, Volumen
+                                    //Drivin_items.units_3": null
+
+                                    Drivin_orders.items.Add(Drivin_items);
+                                }
+
+                                //CabJson.cabeceras.Add(Cabecera);
+
+                                Drivin_clients.orders.Add(Drivin_orders);
+                                Drivin_Cab.clients.Add(Drivin_clients);
+
+                                // Si genera confirmaciones individuales ------------------------------------------------
+                                if (ConfigurationManager.AppSettings["ConfirmacionMultiplePorODP"].ToString() == "False")
+                                {
+                                    //Crea body para llamado con estructura de variable cargada ---
+                                    body = JsonConvert.SerializeObject(Drivin_Cab);
+
+                                    //Guarda JSON que se envia ------------------
+                                    LogInfo(NombreProceso, "JSON Enviado", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code, body.Trim());
+
+                                    request.AddParameter("application/json", body, ParameterType.RequestBody);
+
+                                    //EJECUTA LLAMADO API ---------------------------
+                                    IRestResponse response = client.Execute(request);
+
+                                    LogInfo(NombreProceso, myData.Tables[0].Rows[i]["NombreProceso"].ToString() + ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim(), true);
+
+                                    HttpStatusCode CodigoRetorno = response.StatusCode;
+                                    //JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+
+                                    string Respuesta = "";
+
+                                    //Si finalizó OK --------------------------
+                                    if (CodigoRetorno.Equals(HttpStatusCode.OK)) //Si la API destino retorna un status 200 marca como integrado OK ---
+                                    {
+                                        //====================== ESPECIAL ==========================
+                                        // si hay que esperar respuesta del Webhook ----------------
+                                        //==========================================================
+                                        if (ConfigurationManager.AppSettings["EsperaRespuestaWEBHOOK"].ToString() == "True")
+                                        {
+                                            //Respuesta OK:
+                                            //{
+                                            //    "success": true,
+                                            //    "status": "OK",
+                                            //    "response": 
+                                            //    {
+                                            //        "added": [],
+                                            //        "edited": 
+                                            //            [
+                                            //                "100203955"
+                                            //            ],
+                                            //        "skipped": []
+                                            //    }
+                                            //}
+
+                                            //Respuesta ERROR: puede contener 2 tipos de respuesta. response unico o response como lista
+                                            //{
+                                            //    "success": false,
+                                            //    "status": "Error",
+                                            //    "response": 
+                                            //    {
+                                            //        "description": "Invalid address",
+                                            //        "details": 
+                                            //             [.... campo erroneo y json enviado....
+
+                                            LogInfo(NombreProceso, "JSON respuesta recibido", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code, response.Content.ToString());
+
+                                            JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+                                            string Resultado;
+                                            string Descripcion;
+
+                                            try
+                                            {
+                                                Resultado = rss["status"].ToString(); //OK - Error
+                                                Descripcion = ""; // rss["status"].ToString(); //OK - ERROR
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                Resultado = "ERROR";
+                                                Descripcion = "Respuesta no retorna estructura definida";
+                                            }
+
+                                            if (Resultado.Trim() == "OK")
+                                            {
+                                                //Si es ok guardamos mensaje exitoso
+                                                Descripcion = "Pedido integrado correctamente en Drivin";
+
+                                                //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado Procesado 
+                                                result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                         2,
+                                                                                                                                         ""); //Procesado
+
+                                                Respuesta = "Integracion OK" +
+                                                            ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                            ". Resultado: " + Resultado.Trim() +
+                                                            ". Descripcion: " + Descripcion.Trim();
+
+                                                LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                            }
+                                            else
+                                            {
+                                                //Si es error rescata descripcion error
+                                                Descripcion = rss["response"]["description"].ToString();
+
+                                                //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
+                                                result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                         3,
+                                                                                                                                         ""); //Procesado con error
+
+                                                Respuesta = "Error" +
+                                                            ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                            ". Resultado: " + Resultado.Trim() +
+                                                            ". Descripcion: " + Descripcion.Trim();
+
+                                                LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                            }
+
+                                            //Guarda respuesta en Dato2 ODP procesada -------------
+                                            result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                        EmpIdGlobal,
+                                                                                                                        int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                                                                                                        int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                                                                                                        "Resultado: " + Resultado.Trim() + " .Descripcion: " + Descripcion.Trim());
+
+                                        } //FIN si hay que esperar respuesta del Webhook ================
+                                        else
+                                        { //llamado estandar, solo esperamos una ejecucion exitosa (status 200 - OK)
+                                          //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado Procesado 
+                                            result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                     2,
+                                                                                                                                     ""); //Procesado
+
+                                            Respuesta = "Integracion OK. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                            LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                        }
+                                    }
+                                    else //status Error <> 200
+                                    {
+                                        //Respuesta ERROR
+                                        //{
+                                        //    "success": false,
+                                        //    "status": "Error",
+                                        //    "response": 
+                                        //    {
+                                        //        "description": "Invalid address",
+                                        //        "details": 
+                                        //             [.... campo erroneo y json enviado....
+
+                                        JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+                                        string Resultado;
+                                        string Descripcion;
+
+                                        try
+                                        {
+                                            Resultado = rss["status"].ToString(); //OK - Error
+                                            Descripcion = ""; // rss["status"].ToString(); //OK - ERROR
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Resultado = "ERROR";
+                                            Descripcion = "Respuesta no retorna estructura definida";
+                                        }
+
+                                        //Si es error rescata descripcion error
+                                        Descripcion = rss["response"]["description"].ToString();
+
+                                        Respuesta = "Error" +
+                                                    ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                    ". Resultado: " + Resultado.Trim() +
+                                                    ". Descripcion: " + Descripcion.Trim();
+
+                                        LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+
+                                        //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
+                                        result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                 3,
+                                                                                                                                 ""); //Procesado con error
+
+                                        //Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                        //LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Drivin_orders.code);
+                                    }
+                                    //FIN status Error <> 200
+
+                                    //Inicializa variable principal
+                                    //CabJson = new Cab_Confirmacion_SDD();
+                                    Drivin_Cab = new PedidoDrivin_Cab();
+
+                                } 
+                                // FIN Si genera confirmaciones individuales ------------------------------------------------
+
+                            } //FIN si cambia de Id integracion
+
+                        } //FIN ciclo recorre Confirmaciones
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
+            }
+        }
+
+        private void CreaPedidoDrivin_respaldo(string NombreProceso)
         {
             try
             {
@@ -3306,7 +3856,7 @@ namespace WS_itec2
                                     ListaIdProcesados = "";
                                 }
 
-                            } 
+                            }
                             // FIN Si genera confirmaciones MULTIPLES por ODP ------------------------------------------------
 
                             //Cuando cambie de Id Interno L_IntegraConfirmaciones carga estructura con la API -----
@@ -3510,7 +4060,7 @@ namespace WS_itec2
                                     Drivin_items.code = fila["CodigoArticulo"].ToString(); ; // 999890922",
                                     Drivin_items.description = fila["Dato1Det"].ToString(); // "BUZO ADIDAS TALLA 36/ AZUL",
                                     Drivin_items.units = int.Parse(fila["Cantidad"].ToString()); //1,
-                                    Drivin_items.units_1 = int.Parse(fila["Cantidad"].ToString()); //1,
+                                    Drivin_items.units_1 = int.Parse(fila["Valor1Det"].ToString()); //1, Volumen
                                     //Drivin_items.units_2": null,
                                     //Drivin_items.units_3": null
 
@@ -3697,7 +4247,7 @@ namespace WS_itec2
                                     //CabJson = new Cab_Confirmacion_SDD();
                                     Drivin_Cab = new PedidoDrivin_Cab();
 
-                                } 
+                                }
                                 // FIN Si genera confirmaciones individuales ------------------------------------------------
 
                             } //FIN si cambia de Id integracion
@@ -3891,7 +4441,7 @@ namespace WS_itec2
                                 ListaIdProcesados = "";
                             }
 
-                        } 
+                        }
                         // FIN Si genera confirmaciones MULTIPLES por ODP ------------------------------------------------
 
                     }
