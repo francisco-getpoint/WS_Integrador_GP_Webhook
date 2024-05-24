@@ -4416,12 +4416,16 @@ ITCOD;Interna;178;";
                                         }
 
                                         //Guarda XML que se envia ------------------
-                                        LogInfo(NombreProceso, "XML Enviado", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["Folio"].ToString(), xml.Trim());
+                                        LogInfo(NombreProceso,
+                                                "XML Enviado. ODP: " + myData.Tables[0].Rows[i]["Folio"].ToString() +
+                                                ", SDD: " + myData.Tables[0].Rows[i]["FolioRel"].ToString() +
+                                                ", NumeroReferencia: " + myData.Tables[0].Rows[i]["NumeroReferencia"].ToString(), 
+                                                true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["NumeroReferencia"].ToString(), xml.Trim());
 
                                         //EJECUTA LLAMADO WEBSERVICE ----------
                                         System.Net.HttpWebResponse myResponse = (System.Net.HttpWebResponse)myReq.GetResponse();
 
-                                        LogInfo(NombreProceso, myData.Tables[0].Rows[i]["NombreProceso"].ToString() + ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim(), true);
+                                        LogInfo(NombreProceso, "Ejecuta llamado FACELE. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim(), true);
 
                                         Stream responsedata = myResponse.GetResponseStream();
                                         StreamReader responsereader = new StreamReader(responsedata);
@@ -4461,19 +4465,28 @@ ITCOD;Interna;178;";
                                                         result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                                                                                                  2,
                                                                                                                                                  ""); //Procesado
-                                                        string texto_Respuesta = "Genera DTE, OK" +
+                                                        string texto_Respuesta = "Genera DTE, OK. " +
                                                                                 //". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
-                                                                                "Folio: " + FolioDTE.ToString() +
-                                                                                ". Descripcion: " + Descripcion.Trim();
+                                                                                "Folio DTE: " + FolioDTE.ToString() + ". " +
+                                                                                //". Descripcion: " + 
+                                                                                Descripcion.Trim();
 
                                                         LogInfo(NombreProceso, texto_Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["Folio"].ToString());
 
-                                                        //Guarda respuesta en Dato2 ODP procesada -------------
-                                                        result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
-                                                                                                                                    EmpIdGlobal,
-                                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
-                                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
-                                                                                                                                    texto_Respuesta.Trim());
+                                                        try 
+                                                        {
+                                                            //Guarda respuesta en Dato2 ODP procesada -------------
+                                                            result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                                        EmpIdGlobal,
+                                                                                                                                        int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                                                                                                                        int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                                                                                                                        texto_Respuesta.Trim());
+                                                        }
+                                                        catch (Exception ex)
+                                                        {
+                                                            LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
+                                                        }
+
                                                         #region Recupera PDF Generado --------------------------
                                                         //Recupera PDF ------------------
                                                         //string xml;
@@ -4581,9 +4594,10 @@ ITCOD;Interna;178;";
                                                                         //result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                         //                                                                                         2,
                                                                         //                                                                                         ""); //Procesado
-                                                                        texto_Respuesta = "Obtiene DTE, OK" +
+                                                                        texto_Respuesta = "Obtiene DTE, OK. " +
                                                                                         //". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
-                                                                                        ". Descripcion: " + Descripcion.Trim();
+                                                                                        //". Descripcion: " + 
+                                                                                        Descripcion.Trim();
 
                                                                         LogInfo(NombreProceso, texto_Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["FolioRel"].ToString());
 
@@ -4639,18 +4653,26 @@ ITCOD;Interna;178;";
                                                                                                                                                                  3,
                                                                                                                                                                  ""); //Procesado con error
                                                                         texto_Respuesta = "Obtiene DTE, ERROR" +
-                                                                                        ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
-                                                                                        ". Descripcion: " + Descripcion.Trim();
+                                                                                        ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() + ". " +
+                                                                                        //". Descripcion: " + 
+                                                                                        Descripcion.Trim();
 
                                                                         LogInfo(NombreProceso, texto_Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["Folio"].ToString());
                                                                     }
 
-                                                                    //Guarda respuesta en Dato2 ODP procesada -------------
-                                                                    result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
-                                                                                                                                                EmpIdGlobal,
-                                                                                                                                                int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
-                                                                                                                                                int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
-                                                                                                                                                texto_Respuesta.Trim());
+                                                                    try
+                                                                    {
+                                                                        //Guarda respuesta en Dato2 ODP procesada -------------
+                                                                        result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                                                    EmpIdGlobal,
+                                                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                                                                                                                                    texto_Respuesta.Trim());
+                                                                    }
+                                                                    catch (Exception ex)
+                                                                    {
+                                                                        LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
+                                                                    }
                                                                 }
                                                             }
                                                         }
