@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Data;
 using System.Data.OleDb;
+using System.IO;
 
 namespace WS_Integrador.Classes.model
 {
@@ -219,7 +220,84 @@ namespace WS_Integrador.Classes.model
             return result;
         }
 
-        
+
+        //Asocia archivo adjunto a SDD
+        public static string GuardaAdjuntoSDD_SolImportDespachoAdj(int SolDespId, DateTime FechaDigitacion, string UsuarioDig, string Path)
+        {
+            OleDbConnection myConnection = DB.getConnection();
+            OleDbCommand myCommand = new OleDbCommand("sp_in_SolImportDespachoAdj", myConnection);
+            myCommand.CommandType = CommandType.StoredProcedure;
+
+            myCommand.Parameters.Add("@SolDespId", OleDbType.Numeric).Value = SolDespId;
+            myCommand.Parameters.Add("@FechaDigitacion", OleDbType.Date).Value = FechaDigitacion;
+            myCommand.Parameters.Add("@UsuarioDig", OleDbType.VarChar).Value = UsuarioDig;
+            myCommand.Parameters.Add("@Path", OleDbType.VarChar).Value = Path;
+            //myCommand.Parameters.Add("@SolDespAdjId              int output
+
+            string result;
+            try
+            {
+                OleDbParameter SolDespAdjId = new OleDbParameter("@SolDespAdjId", OleDbType.Numeric);
+                SolDespAdjId.Direction = ParameterDirection.Output;
+                myCommand.Parameters.Add(SolDespAdjId);
+
+                myCommand.CommandTimeout = 99999;
+                myConnection.Open();
+                myCommand.ExecuteNonQuery();
+
+                if (SolDespAdjId.Value.ToString() != "0")
+                {
+                    result = "OK";
+                }
+                else 
+                {
+                    result = "Error";
+                }
+            }
+            catch (Exception ex)
+            {
+                result = "Error";
+                throw new Exception(ex.Message.ToString());
+            }
+            finally
+            {
+                myConnection.Close();
+                myConnection.Dispose();
+            }
+            return result;
+        }
+
+        public static string ActualizaSolDespachoReferenciaEnvioEcommerce(int SolDespId, string Dato4, string ZPL, string RutaPDF)
+        {
+            OleDbConnection myConnection = DB.getConnection();
+            OleDbCommand myCommand = new OleDbCommand("sp_upd_INT_SolDespachoRefEnvioToEcomm", myConnection);
+            myCommand.CommandType = CommandType.StoredProcedure;
+
+            myCommand.Parameters.Add("@SolDespId", OleDbType.Numeric).Value = SolDespId;
+            myCommand.Parameters.Add("@Dato4", OleDbType.VarChar, 250).Value = Dato4;
+            myCommand.Parameters.Add("@ZPL", OleDbType.VarChar).Value = ZPL;
+            myCommand.Parameters.Add("@RutaPDF", OleDbType.VarChar, 250).Value = RutaPDF;
+
+            string result;
+            try
+            {
+                myCommand.CommandTimeout = 99999;
+                myConnection.Open();
+                myCommand.ExecuteNonQuery();
+                result = "OK";
+            }
+            catch (Exception ex)
+            {
+                result = "Error";
+                throw new Exception(ex.Message.ToString());
+            }
+            finally
+            {
+                myConnection.Close();
+                myConnection.Dispose();
+            }
+            return result;
+        }
     }
 }
 
