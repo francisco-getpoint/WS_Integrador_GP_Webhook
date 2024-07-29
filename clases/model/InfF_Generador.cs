@@ -298,6 +298,35 @@ namespace WS_Integrador.Classes.model
             }
             return result;
         }
+
+        public static string GeneraConfirmacionRevision(int RevisionId)
+        {
+            OleDbConnection myConnection = DB.getConnection();
+            OleDbCommand myCommand = new OleDbCommand("sp_proc_INT_ConfirmacionREV", myConnection);
+            myCommand.CommandType = CommandType.StoredProcedure;
+
+            myCommand.Parameters.Add("@REV", OleDbType.Numeric).Value = RevisionId;
+
+            string result;
+            try
+            {
+                myCommand.CommandTimeout = 99999;
+                myConnection.Open();
+                myCommand.ExecuteNonQuery();
+                result = "OK";
+            }
+            catch (Exception ex)
+            {
+                result = "Error";
+                throw new Exception(ex.Message.ToString());
+            }
+            finally
+            {
+                myConnection.Close();
+                myConnection.Dispose();
+            }
+            return result;
+        }
     }
 }
 

@@ -14,6 +14,7 @@ using System.Runtime.Serialization;
 using System.Xml;
 using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
+using System.Xml.Linq;
 //using System.Linq;
 //using System.Xml.Linq;
 //using static System.Net.Mime.MediaTypeNames;
@@ -108,7 +109,6 @@ namespace WS_itec2
 
             [DataMember(Order = 18)]
             public string Dato3 { get; set; }
-
 
             [DataMember(Order = 99)]
             public List<Det_Confirmacion_SDR> items = new List<Det_Confirmacion_SDR>();
@@ -243,6 +243,24 @@ namespace WS_itec2
             [DataMember(Order = 17)]
             public string Dato3 { get; set; }
 
+            //[DataMember(Order = 18)]
+            //public decimal Valor1 { get; set; }
+
+            //[DataMember(Order = 19)]
+            //public decimal Valor2 { get; set; }
+
+            //[DataMember(Order = 20)]
+            //public decimal Valor3 { get; set; }
+
+            //[DataMember(Order = 21)]
+            //public string Fecha1 { get; set; }
+
+            //[DataMember(Order = 22)]
+            //public string Fecha2 { get; set; }
+
+            //[DataMember(Order = 23)]
+            //public string Fecha3 { get; set; }
+
             [DataMember(Order = 99)]
             public List<Det_Confirmacion_SDD> Items = new List<Det_Confirmacion_SDD>();
         }
@@ -291,6 +309,24 @@ namespace WS_itec2
 
             [DataMember(Order = 14)]
             public string Dato3 { get; set; }
+
+            //[DataMember(Order = 15)]
+            //public decimal Valor1 { get; set; }
+
+            //[DataMember(Order = 16)]
+            //public decimal Valor2 { get; set; }
+
+            //[DataMember(Order = 17)]
+            //public decimal Valor3 { get; set; }
+
+            //[DataMember(Order = 18)]
+            //public string Fecha1 { get; set; }
+
+            //[DataMember(Order = 19)]
+            //public string Fecha2 { get; set; }
+
+            //[DataMember(Order = 20)]
+            //public string Fecha3 { get; set; }
         }
 
         // Alerta ---------------------------------------------
@@ -604,6 +640,18 @@ namespace WS_itec2
 
             [DataMember(Order = 8)]
             public string HoraEstado { get; set; }
+
+            [DataMember(Order = 9)]
+            public int MotivoAnula { get; set; }
+
+            [DataMember(Order = 10)]
+            public string DescripcionMotivoAnula { get; set; }
+
+            [DataMember(Order = 11)]
+            public string UsuarioAnula { get; set; }
+
+            [DataMember(Order = 12)]
+            public string GlosaAnula { get; set; }
         }
 
         [DataContract]
@@ -779,8 +827,8 @@ namespace WS_itec2
             //[DataMember(Order = 13)]
             //public string custom_3 { get; set; }
 
-            //[DataMember(Order = 14)]
-            //public string custom_4 { get; set; }
+            [DataMember(Order = 14)]
+            public string custom_4 { get; set; }
 
             //[DataMember(Order = 15)]
             //public string custom_5 { get; set; }
@@ -795,10 +843,16 @@ namespace WS_itec2
             //public string deploy_date { get; set; }
 
             [DataMember(Order = 19)]
+            public string employer_name { get; set; }
+
+            [DataMember(Order = 20)]
+            public string employer_code { get; set; }
+
+            [DataMember(Order = 21)]
 
             public List<PedidoDrivin_items> items = new List<PedidoDrivin_items>();
 
-            //[DataMember(Order = 20)]
+            //[DataMember(Order = 22)]
             //public List<PedidoDrivin_pickups> pickups { get; set; } //= new List<PedidoDrivin_pickups>();
         }
 
@@ -812,16 +866,13 @@ namespace WS_itec2
             public string description { get; set; }
 
             [DataMember(Order = 3)]
-            public int units { get; set; }
+            public decimal units { get; set; }
 
             [DataMember(Order = 4)]
-            public int units_1 { get; set; }
+            public decimal units_1 { get; set; }
 
             [DataMember(Order = 5)]
-            public int units_2 { get; set; }
-
-            //[DataMember(Order = 6)]
-            //public int units_3 { get; set; }
+            public decimal units_2 { get; set; }
         }
 
         [DataContract]
@@ -937,7 +988,7 @@ namespace WS_itec2
         {
             try
             {
-                LogInfo("ConfirmacionIngreso", NombreProceso.Trim() + " - Inicio ejecucion", true, false);
+                LogInfo(NombreProceso, "Inicio ejecucion", true, false);
 
                 //para evitar error de seguridad en el llamado a la API ----------
                 ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
@@ -1220,9 +1271,28 @@ namespace WS_itec2
                                     result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                                                                              3, 
                                                                                                                              ""); //Procesado con error
+                                    string txtRespuesta = "";
+                                    try
+                                    {
+                                        txtRespuesta = " - " + response.Content.ToString().Substring(0, 100);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        txtRespuesta = "";
+                                    }
 
-                                    Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                    Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                ", Status retorno: " + CodigoRetorno.ToString() + txtRespuesta;
+
                                     LogInfo("ConfirmacionIngreso", Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia);
+
+                                    //Guarda respuesta en Dato2 RDM procesada -------------
+                                    //En este caso el error se guarda solamente en el DATO2 si la RDM ya semarcó definitivamente como error luego de los 3 reintentos
+                                    result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                EmpIdGlobal,
+                                                                                                                int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                                                                                                int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                                                                                                Respuesta);
                                 }
                             } //FIN si cambia de IntId
 
@@ -1397,8 +1467,19 @@ namespace WS_itec2
                                         result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                                                                                  3, 
                                                                                                                                  ListaIdProcesados.Trim()); //Procesado con error
+                                        string txtRespuesta = "";
+                                        try
+                                        {
+                                            txtRespuesta = " - " + response.Content.ToString().Substring(0, 100);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            txtRespuesta = "";
+                                        }
 
-                                        Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                        Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() + 
+                                                    ", Status retorno: " + CodigoRetorno.ToString() + txtRespuesta;
+
                                         LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia);
                                     }
 
@@ -1664,8 +1745,19 @@ namespace WS_itec2
                                         result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                                                                                  3,
                                                                                                                                  ""); //Procesado con error
+                                        string txtRespuesta = "";
+                                        try
+                                        {
+                                            txtRespuesta = " - " + response.Content.ToString().Substring(0, 100);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            txtRespuesta = "";
+                                        }
 
-                                        Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                        Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                    ", Status retorno: " + CodigoRetorno.ToString() + txtRespuesta;
+
                                         LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia);
                                     }
 
@@ -1792,8 +1884,19 @@ namespace WS_itec2
                                     result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                                                                              3,
                                                                                                                              ListaIdProcesados.Trim()); //Procesado con error
+                                    string txtRespuesta = "";
+                                    try
+                                    {
+                                        txtRespuesta = " - " + response.Content.ToString().Substring(0, 100);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        txtRespuesta = "";
+                                    }
 
-                                    Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                    Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                ", Status retorno: " + CodigoRetorno.ToString() + txtRespuesta;
+
                                     LogInfo(NombreProceso, Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia);
                                 }
 
@@ -2483,6 +2586,7 @@ namespace WS_itec2
                         for (int i = 0; i <= myData.Tables[0].Rows.Count - 1; i++)
                         {
                             //Carga ruta de la API para integrar a Woocommerce segun nombre proceso que genero documento --------------------
+                            #region Carga URL de la API Webhook del cliente correspondiente al proceso segun la empresa ----------
                             var client = new RestClient(myData.Tables[0].Rows[i]["URL_EndPoint"].ToString().Trim());
 
                             EmpIdGlobal = int.Parse(myData.Tables[0].Rows[i]["EmpIdGlobal"].ToString());
@@ -2534,6 +2638,8 @@ namespace WS_itec2
                             }
                             //FIN ============== ESPECIAL PARA HONDA, PARAMETRIZAR LUEGO =============
 
+                            #endregion
+
                             Cab_WebhookTracking Tracking = new Cab_WebhookTracking();
 
                             string var_IntId = "";
@@ -2546,8 +2652,9 @@ namespace WS_itec2
                                 //Inicializa variable principal
                                 Tracking = new Cab_WebhookTracking();
 
-                                string[] Palabras = myData.Tables[0].Rows[i]["Texto1Cab"].ToString().Trim().Split('|');                                
-                                //viene concatenado: estado|glosaEstado|Fecha|hora
+                                string[] Palabras = myData.Tables[0].Rows[i]["Texto1Cab"].ToString().Trim().Split('|');
+                                //viene concatenado: 
+                                //  Estado|GlosaEstado|Fecha|Hora|MotivoAnula|DescripcionMotivoAnula|UsuarioAnula|GlosaAnula
 
                                 //Guarda documento referencia que esta procesando ---------
                                 var_IntId = myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
@@ -2562,6 +2669,11 @@ namespace WS_itec2
                                 Tracking.FechaEstado = Palabras[2].Trim();
                                 Tracking.HoraEstado = Palabras[3].Trim();
 
+                                Tracking.MotivoAnula = int.Parse(Palabras[4].Trim());
+                                Tracking.DescripcionMotivoAnula = Palabras[5].Trim();
+                                Tracking.UsuarioAnula = Palabras[6].Trim();
+                                Tracking.GlosaAnula = Palabras[7].Trim();
+
                                 //No procesa detalles ----------
 
                                 //-------------------------------------------------------------
@@ -2575,7 +2687,7 @@ namespace WS_itec2
                                 //------------------------------------------------
                                 IRestResponse response = client.Execute(request);
 
-                                LogInfo("WebhookTracking", "IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim(), true, false);
+                                //LogInfo("WebhookTracking", "IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim(), true, false);
 
                                 HttpStatusCode CodigoRetorno = response.StatusCode;
                                 //JObject rss = JObject.Parse(response.Content); //recupera json de retorno
@@ -2604,7 +2716,7 @@ namespace WS_itec2
                                                                                                                              ""); //Procesado con error
                                     Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
 
-                                    LogInfo("WebhookTracking", myData.Tables[0].Rows[i]["NombreProceso"].ToString() + " - " + Respuesta, true, false);
+                                    LogInfo("WebhookTracking", Respuesta, true, false, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["Folio"].ToString(), body.Trim());
                                 }
 
                             } //FIN si cambia de Id integracion
@@ -3191,6 +3303,26 @@ namespace WS_itec2
                                 Drivin_orders.code = myData.Tables[0].Rows[i]["NumeroReferencia"].ToString(); //100203955",
                                 Drivin_orders.delivery_date = DateTime.Parse(myData.Tables[0].Rows[i]["FechaProceso"].ToString()).ToString("yyyy-MM-dd"); //2024-02-14",
 
+                                //divide Texto1 que viene con datos concatenados
+                                string[] Palabras = myData.Tables[0].Rows[i]["Texto1Cab"].ToString().Trim().Split('¬');
+
+                                //0   s.Contacto + '¬' +
+                                //1   s.Vendedor + '¬' +
+                                //2   s.Pais + '¬' +
+                                //3   reg.DescripcionRe + '¬' +
+                                //4   ciu.DescripcionCi + '¬' +
+                                //5   com.DescripcionCo + '¬' +
+                                //6   s.Direccion + '¬' +
+                                //7   s.CodigoPostal + '¬' +
+                                //8   s.Email + '¬' +
+                                //9   Telefono + '¬' +
+                                //10  employer_name + '¬' +
+                                //11  employer_code
+
+                                Drivin_orders.custom_4 = myData.Tables[0].Rows[i]["Folio"].ToString().Trim(); //envia ODP
+                                Drivin_orders.employer_name = Palabras[10].Trim();
+                                Drivin_orders.employer_code = Palabras[11].Trim();
+
                                 //Busca los detalles relacionados al IntId y los agrega a la cabecera
                                 string CondicionBusqueda = "IntId = " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
 
@@ -3202,9 +3334,9 @@ namespace WS_itec2
 
                                     Drivin_items.code = fila["CodigoArticulo"].ToString(); ; // 999890922",
                                     Drivin_items.description = fila["Dato1Det"].ToString(); // "BUZO ADIDAS TALLA 36/ AZUL",
-                                    Drivin_items.units = int.Parse(fila["Cantidad"].ToString()); //1,
-                                    //Drivin_items.units_1 = int.Parse(fila["Valor1Det"].ToString()); //1, Volumen
-                                    Drivin_items.units_2 = int.Parse(fila["Valor1Det"].ToString()); //1, Volumen
+                                    Drivin_items.units = decimal.Parse(fila["Cantidad"].ToString()); //
+                                    Drivin_items.units_1 = decimal.Parse(fila["Valor1Det"].ToString()); // Kilos/litros
+                                    Drivin_items.units_2 = decimal.Parse(fila["Valor2Det"].ToString()); // Volumen cm3
                                     //Drivin_items.units_3": null
 
                                     Drivin_orders.items.Add(Drivin_items);
@@ -4280,11 +4412,11 @@ namespace WS_itec2
                         //Recorre las lineas --------------
                         for (i = 0; i <= myData.Tables[0].Rows.Count - 1; i++)
                         {
-                            try
+                            //Cuando cambie de Id Interno L_IntegraConfirmaciones o sea el primer registro de la lista comienza a armar estructura de para enviar a la API -----
+                            if (myData.Tables[0].Rows[i]["IntId"].ToString().Trim() != var_IntId || var_IntId == "")
                             {
-                                //Cuando cambie de Id Interno L_IntegraConfirmaciones o sea el primer registro de la lista comienza a armar estructura de para enviar a la API -----
-                                if (myData.Tables[0].Rows[i]["IntId"].ToString().Trim() != var_IntId || var_IntId == "")
-                                {
+                                try 
+                                { 
                                     //Inicializa dataset
                                     dsGeneraDTE = new DataSet();
                                     dsObtieneDTE = new DataSet();
@@ -4336,19 +4468,10 @@ namespace WS_itec2
 
                                         //parametros entrada =========>
                                         string rutEmisor = Palabras[0];
-                                        int tipoDTE = int.Parse(Palabras[1]); //factura electronica
+                                        int tipoDTE = int.Parse(Palabras[1]); //boleta, factura o guia de despacho electronica
                                         string formato = Palabras[2]; // FACELE.generaDTEFormato.TXT; // puede ser XML, TXT, TXT123 o XML_OBS
                                         string formatoPDF = Palabras[3]; // FACELE.generaDTEFormato.TXT; // puede ser XML, TXT, TXT123 o XML_OBS
 
-                                        //string de ejemplo que funciona
-                                        string txt = @"A0;;;;;;;;;;;
-ENC;39;1.0;0;2023-12-13;1;;;;;93027000-8;ESTABLECIMIENTOS COMERCIALES CALIFORNIA S.A.;Importadora y Exportadora;;Av. Vitacura 2771, O;Las Condes;Santiago;66666666-6;0;Consumo Final;S/D;S/D;S/D;S/D;;;;75596;0;14363;89959;0;;;89959;
-DET;1;;;;E080E;;2;;1990;;;;;3979;
-ITCOD;Interna;178;
-DET;2;;;;Nuevo;;1;;62990;;;;;62990;
-ITCOD;Interna;178;
-DET;3;;;;product;;1;;22990;;;;;22990;
-ITCOD;Interna;178;";
                                         string var_xml = "";
                                         string uuid = "";
 
@@ -4369,13 +4492,19 @@ ITCOD;Interna;178;";
                                               "   </soapenv:Body>" +
                                               "</soapenv:Envelope>";
 
+                                        //Guarda XML que se enviara ------------------
+                                        LogInfo(NombreProceso,
+                                                "XML Enviado. ODP: " + myData.Tables[0].Rows[i]["Folio"].ToString() +
+                                                ", SDD: " + myData.Tables[0].Rows[i]["FolioRel"].ToString() +
+                                                ", NumeroReferencia: " + myData.Tables[0].Rows[i]["NumeroReferencia"].ToString(),
+                                                true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["NumeroReferencia"].ToString(), xml.Trim());
 
                                         //Carga URL de la Webservice y datos headers necesarios en el llamado -----
                                         #region Carga URL de la Webservice y datos headers necesarios en el llamado -----
 
                                         EmpIdGlobal = int.Parse(myData.Tables[0].Rows[i]["EmpIdGlobal"].ToString());
 
-                                        //string urlconfig = "https://caoba.docele.cl:443/cl-dol-auth/DoceleOLService";
+                                        //string urlconfig = "https:/ /caoba.docele.cl:443/cl-dol-auth/DoceleOLService";
 
                                         string url = myData.Tables[0].Rows[i]["URL_EndPoint"].ToString().Trim(); // urlconfig;
                                                                                                                  ////string responsestring = "";
@@ -4415,14 +4544,9 @@ ITCOD;Interna;178;";
                                             post.Write(buffer, 0, buffer.Length);
                                         }
 
-                                        //Guarda XML que se envia ------------------
-                                        LogInfo(NombreProceso,
-                                                "XML Enviado. ODP: " + myData.Tables[0].Rows[i]["Folio"].ToString() +
-                                                ", SDD: " + myData.Tables[0].Rows[i]["FolioRel"].ToString() +
-                                                ", NumeroReferencia: " + myData.Tables[0].Rows[i]["NumeroReferencia"].ToString(), 
-                                                true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["NumeroReferencia"].ToString(), xml.Trim());
-
-                                        //EJECUTA LLAMADO WEBSERVICE ----------
+                                        //====================================================
+                                        //EJECUTA LLAMADO WEBSERVICE ----------------------------
+                                        //==========================================================
                                         System.Net.HttpWebResponse myResponse = (System.Net.HttpWebResponse)myReq.GetResponse();
 
                                         LogInfo(NombreProceso, "Ejecuta llamado FACELE. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim(), true);
@@ -4487,7 +4611,7 @@ ITCOD;Interna;178;";
                                                             LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
                                                         }
 
-                                                        #region Recupera PDF Generado --------------------------
+                                                        #region Recupera archivo PDF Generado y lo adjunta --------------------------
                                                         //Recupera PDF ------------------
                                                         //string xml;
 
@@ -4710,30 +4834,57 @@ ITCOD;Interna;178;";
                                     }
                                     catch (Exception ex)
                                     {
-                                        LogInfo(NombreProceso, ex.Message.Trim(), true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["Folio"].ToString());
+                                        string texto_Respuesta = "Genera DTE, ERROR" +
+                                                                ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                                ". Descripcion: " + ex.Message.Trim();
 
+                                        LogInfo(NombreProceso, texto_Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["Folio"].ToString());
+
+                                        //Guarda respuesta en Dato2 ODP procesada -------------
+                                        result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                    EmpIdGlobal,
+                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                                                                                                    texto_Respuesta.Trim());
                                         //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
                                         result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
                                                                                                                                  3,
                                                                                                                                  ""); //Procesado con error
                                     }
+
                                     //finally
                                     //{
                                     //    ds.Dispose();
                                     //}
                                     //=======================================================================================================================
 
-                                } //FIN si cambia de Id integracion
-                            }
-                            catch (Exception ex) //maneja errores no controlados y marca la linea en caso de error
-                            {
-                                LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
+                                }
+                                catch (Exception ex) //maneja errores no controlados y marca la linea en caso de error
+                                {
+                                    LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
 
-                                //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
-                                result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
-                                                                                                                         3,
-                                                                                                                         ""); //Procesado con error
-                            }
+                                    //Actualiza estado de L_IntegraConfirmacionesDet, deja en estado error 
+                                    result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                             3,
+                                                                                                                             ""); //Procesado con error
+                                }
+
+                                //==================================================================================================
+                                //Posterior a la Generación del DTE gatilla integracion de SDD para que pueda informar DTE Generado
+                                // procedimiento: sp_proc_INT_ConfirmacionREV
+                                //================================================================================================== 
+                                try
+                                {
+                                    //Genera integracion para Revision finalizada -------------
+                                    result = WS_Integrador.Classes.model.InfF_Generador.GeneraConfirmacionRevision(int.Parse(myData.Tables[0].Rows[i]["Valor1"].ToString()));
+                                }
+                                catch (Exception ex)
+                                {
+                                    LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
+                                }
+
+                            } //FIN si cambia de Id integracion
+
 
                         } //FIN ciclo recorre Confirmaciones
                     }
@@ -5023,7 +5174,6 @@ ITCOD;Interna;178;";
         }
         #endregion
 
-        //-------------------------------------------------------------------------------
         //ESPECIAL COAGRA: retorna Cookie y token para invocar WEBHOOK DE CONFIRMACION
         //-------------------------------------------------------------------------------
         private void CookieCOAGRA(string NombreProceso, ref string Token_, ref string NombreCookie1, ref string ValorCookie1, ref string NombreCookie2, ref string ValorCookie2)
@@ -5160,7 +5310,6 @@ ITCOD;Interna;178;";
             }
         }
 
-        //-------------------------------------------------------------------------------
         //ESPECIAL HONDA: retorna token para invocar WEBHOOK DE CONFIRMACION
         //-------------------------------------------------------------------------------
         private void TokenHONDA(string NombreProceso, ref string Token_)

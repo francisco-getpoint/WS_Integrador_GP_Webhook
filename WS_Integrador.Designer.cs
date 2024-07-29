@@ -32,7 +32,7 @@
             // Service1
             // 
             this.CanPauseAndContinue = true;
-            this.ServiceName = "WS_Integrador_GP_Webhook_FACELE";
+            this.ServiceName = "WS_Integrador_GP_Webhook";
 
         }
 
