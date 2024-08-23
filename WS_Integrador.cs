@@ -1333,7 +1333,7 @@ namespace WS_itec2
                                                                                                                NombreProceso);
                 if (myData.Tables.Count > 0)
                 {
-                    if (myData.Tables[0].Rows.Count > 0)
+                    if (myData.Tables[0].Rows.Count > 0) //si trae datos
                     {
                         Cab_Confirmacion_SDD CabJson = new Cab_Confirmacion_SDD();
                         Cab2_Confirmacion_SDD Cabecera = new Cab2_Confirmacion_SDD();
@@ -1354,6 +1354,30 @@ namespace WS_itec2
                         string NombreCookie2 = "";
                         string ValorCookie2 = "";
                         int i = 0;
+
+                        //=======================================================================
+                        //===== ESPECIAL COAGRA, GENERA COOKIE Y TOKEN ===========================
+                        //=========================================================================
+                        if (myData.Tables[0].Rows[i]["NombreProceso"].ToString().Contains("COAGRA")) //si el proceso contiene coagra debe rescatar el TOKEN para Coagra 
+                        {
+                            Token_ = "";
+                            NombreCookie1 = "";
+                            ValorCookie1 = "";
+                            NombreCookie2 = "";
+                            ValorCookie2 = "";
+
+                            //Genera cookie y token 1 vez para todos los llamados
+                            CookieCOAGRA("COOKIE_TOKEN_COAGRA", ref Token_, ref NombreCookie1, ref ValorCookie1, ref NombreCookie2, ref ValorCookie2);
+
+                            ////Agrega Cookies obtenidas -----
+                            //request.AddCookie(NombreCookie1, ValorCookie1);
+                            //request.AddCookie(NombreCookie2, ValorCookie2);
+
+                            ////Agrega headers adicional -----
+                            //request.AddHeader("x-csrf-token", Token_);
+                        }
+                        //FIN ============== ESPECIAL PARA COAGRA, PARAMETRIZAR LUEGO =============
+
 
                         //Recorre la confirmaciones de salida --------------
                         for (i = 0; i <= myData.Tables[0].Rows.Count - 1; i++)
@@ -1536,17 +1560,17 @@ namespace WS_itec2
                                 }
 
                                 //=======================================================================
-                                //======================= ESPECIAL COAGRA ===========================
+                                //===== ESPECIAL COAGRA, GENERA COOKIE Y TOKEN ===========================
                                 //=========================================================================
                                 if (myData.Tables[0].Rows[i]["NombreProceso"].ToString().Contains("COAGRA")) //si el proceso contiene coagra debe rescatar el TOKEN para Coagra 
                                 {
-                                    Token_ = "";
-                                    NombreCookie1 = "";
-                                    ValorCookie1 = "";
-                                    NombreCookie2 = "";
-                                    ValorCookie2 = "";
+                                    //Token_ = "";
+                                    //NombreCookie1 = "";
+                                    //ValorCookie1 = "";
+                                    //NombreCookie2 = "";
+                                    //ValorCookie2 = "";
 
-                                    CookieCOAGRA("COOKIE_TOKEN_COAGRA", ref Token_, ref NombreCookie1, ref ValorCookie1, ref NombreCookie2, ref ValorCookie2);
+                                    //CookieCOAGRA("COOKIE_TOKEN_COAGRA", ref Token_, ref NombreCookie1, ref ValorCookie1, ref NombreCookie2, ref ValorCookie2);
 
                                     //Agrega Cookies obtenidas -----
                                     request.AddCookie(NombreCookie1, ValorCookie1);
@@ -1649,10 +1673,14 @@ namespace WS_itec2
 
                                     request.AddParameter("application/json", body, ParameterType.RequestBody);
 
+                                    DateTime FechaDesde = DateTime.Now;
+                                    LogInfo(NombreProceso, myData.Tables[0].Rows[i]["NombreProceso"].ToString() + ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() + ". Llamado API. Hora: " + FechaDesde.ToString("HH:mm:ss:fff"), true);
+
                                     //EJECUTA LLAMADO API ---------------------------
                                     IRestResponse response = client.Execute(request);
 
-                                    LogInfo(NombreProceso, myData.Tables[0].Rows[i]["NombreProceso"].ToString() + ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim(), true);
+                                    DateTime FechaHasta = DateTime.Now;
+                                    LogInfo(NombreProceso, myData.Tables[0].Rows[i]["NombreProceso"].ToString() + ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() + ". Respuesta API. Hora: " + FechaHasta.ToString("HH:mm:ss:fff"), true);
 
                                     HttpStatusCode CodigoRetorno = response.StatusCode;
                                     //JObject rss = JObject.Parse(response.Content); //recupera json de retorno
@@ -1789,10 +1817,14 @@ namespace WS_itec2
 
                                 request.AddParameter("application/json", body, ParameterType.RequestBody);
 
+                                DateTime FechaDesde = DateTime.Now;
+                                LogInfo(NombreProceso, myData.Tables[0].Rows[i]["NombreProceso"].ToString() + ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() + ". Llamado API. Hora: " + FechaDesde.ToString("HH:mm:ss:fff"), true);
+
                                 //EJECUTA LLAMADO API ---------------------------
                                 IRestResponse response = client.Execute(request);
 
-                                LogInfo(NombreProceso, myData.Tables[0].Rows[i]["NombreProceso"].ToString() + ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim(), true);
+                                DateTime FechaHasta = DateTime.Now;
+                                LogInfo(NombreProceso, myData.Tables[0].Rows[i]["NombreProceso"].ToString() + ". IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() + ". Respuesta API. Hora: " + FechaHasta.ToString("HH:mm:ss:fff"), true);
 
                                 HttpStatusCode CodigoRetorno = response.StatusCode;
                                 //JObject rss = JObject.Parse(response.Content); //recupera json de retorno
@@ -5127,12 +5159,12 @@ namespace WS_itec2
                     if (EstructuraJSON.Trim() != "")
                     {
                         html.Append("[" + sMessage.ToString() + 
-                                    "]. Fecha/Hora " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + ". " + 
+                                    "]. Fecha " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ". " + //DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + ". " + 
                                     motivo.Trim() + ". JSON= " + EstructuraJSON.Trim());
                     }
                     else
                     {
-                        html.Append("[" + sMessage.ToString() + "]. Fecha/Hora " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + ". " + motivo.Trim());
+                        html.Append("[" + sMessage.ToString() + "]. Fecha " + DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + ". " + motivo.Trim());
                     }
                                         
                     html.Append(Environment.NewLine);
