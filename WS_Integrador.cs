@@ -912,13 +912,13 @@ namespace WS_itec2
 
                 if (ConfigurationManager.AppSettings["Activa_CONFIRMA_RECEPCION"].ToString() == "True")
                 {
-                    //1: WebHook extrae Confirmacion de Recepciones 
+                    //1: WebHook envia Confirmacion de Recepciones 
                     ConfirmacionIngreso("CONFIRMA_RECEPCION");
                 }
 
                 if (ConfigurationManager.AppSettings["Activa_CONFIRMA_DESPACHO"].ToString() == "True")
                 {
-                    //2: WebHook extrae Confirmacion de Despachos
+                    //2: WebHook envia Confirmacion de Despachos
                     ConfirmacionSalida("CONFIRMA_DESPACHO");
                 }
 
@@ -1327,10 +1327,33 @@ namespace WS_itec2
                 int EmpIdGlobal = 0;
 
                 Int32.TryParse(stEmpId, out EmpId);
+                DataSet myData;
 
-                //Extrae ODP (Olas de Picking) ----------
-                DataSet myData = WS_Integrador.Classes.model.InfF_Generador.ShowList_IntegraConfirmacionesJson(EmpId,
+                //Valida que exista la key -----
+                if (ConfigurationManager.AppSettings["SucursalesIntegracion"] != null)
+                {
+                    //ESPECIAL COAGRA - Envia sucursales que debe confirmar 
+                    if (ConfigurationManager.AppSettings["SucursalesIntegracion"].ToString() != "")
+                    {
+                        //Especial Coagra, Extrae ODP (Olas de Picking) segun sucursales de la configuracion ----------
+                        myData = WS_Integrador.Classes.model.InfF_Generador.ShowList_IntegraConfirmacionesSucursalJson(EmpId,
+                                                                                                                       NombreProceso,
+                                                                                                                       ConfigurationManager.AppSettings["SucursalesIntegracion"].ToString());
+                    }
+                    else
+                    {
+                        //Extrae ODP (Olas de Picking) ----------
+                        myData = WS_Integrador.Classes.model.InfF_Generador.ShowList_IntegraConfirmacionesJson(EmpId,
                                                                                                                NombreProceso);
+                    }
+                }
+                else
+                {
+                    //Extrae ODP (Olas de Picking) ----------
+                    myData = WS_Integrador.Classes.model.InfF_Generador.ShowList_IntegraConfirmacionesJson(EmpId,
+                                                                                                           NombreProceso);
+                }
+
                 if (myData.Tables.Count > 0)
                 {
                     if (myData.Tables[0].Rows.Count > 0) //si trae datos

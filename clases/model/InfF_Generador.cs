@@ -55,6 +55,41 @@ namespace WS_Integrador.Classes.model
             return myDataSet;
         }
 
+        //ESPECIAL COAGRA: Trae los registros que debe enviar a los Webhooks, filtra por sucursal
+        public static DataSet ShowList_IntegraConfirmacionesSucursalJson(int EmpId, string NombreProceso, string SucursalesIntegracion)
+        {
+            DataSet myDataSet = new DataSet();
+            OleDbConnection myConnection = DB.getOleDbConnection();
+
+            OleDbCommand myCommand = new OleDbCommand("sp_sel_API_IntegraConfirmacionesSucursalJson", myConnection);
+            myCommand.CommandType = CommandType.StoredProcedure;
+            myCommand.Parameters.Add("@EmpId", OleDbType.Integer).Value = EmpId;
+            myCommand.Parameters.Add("@NombreProceso", OleDbType.VarChar).Value = NombreProceso;
+            myCommand.Parameters.Add("@SucursalesIntegracion", OleDbType.VarChar).Value = SucursalesIntegracion;
+            myCommand.Parameters.Add("@Limit", OleDbType.Integer).Value = 100;
+            myCommand.Parameters.Add("@Rowset", OleDbType.Integer).Value = 0;
+
+            try
+            {
+                myCommand.CommandTimeout = 9999;
+                myConnection.Open();
+                //myCommand.ExecuteNonQuery();
+                OleDbDataAdapter myAdapter = new OleDbDataAdapter();
+                myAdapter.SelectCommand = myCommand;
+                myAdapter.Fill(myDataSet, "sp_sel_API_IntegraConfirmacionesSucursalJson");
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            finally
+            {
+                myConnection.Close();
+                myConnection.Dispose();
+            }
+            return myDataSet;
+        }
+
         //Trae los headers definidos para las rutas de los Webhooks
         public static DataSet ShowList_EndPointHeadersJson(int EmpidGlobal, int EmpId, string NombreProceso,int TipoParam)
         {

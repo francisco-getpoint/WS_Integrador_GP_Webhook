@@ -41,8 +41,8 @@
             // serviceInstaller1
             // 
 
-            this.serviceInstaller1.DisplayName = "WS_Integrador_GP_Webhook";
-            this.serviceInstaller1.ServiceName = "WS_Integrador_GP_Webhook";
+            this.serviceInstaller1.DisplayName = "GP_Integrador_GP_Webhook_COAGRA_07";
+            this.serviceInstaller1.ServiceName = "WS_Integrador_GP_Webhook_COAGRA_07";
 
             // 
             // ProjectInstaller
