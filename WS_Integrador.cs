@@ -110,6 +110,9 @@ namespace WS_itec2
             [DataMember(Order = 18)]
             public string Dato3 { get; set; }
 
+            [DataMember(Order = 19)]
+            public int CodigoBodega { get; set; }
+
             [DataMember(Order = 99)]
             public List<Det_Confirmacion_SDR> items = new List<Det_Confirmacion_SDR>();
         }
@@ -242,6 +245,9 @@ namespace WS_itec2
 
             [DataMember(Order = 17)]
             public string Dato3 { get; set; }
+
+            [DataMember(Order = 18)]
+            public int CodigoBodega { get; set; }
 
             //[DataMember(Order = 18)]
             //public decimal Valor1 { get; set; }
@@ -1134,6 +1140,7 @@ namespace WS_itec2
                                 Cabecera.Dato1 = myData.Tables[0].Rows[i]["Dato1"].ToString();
                                 Cabecera.Dato2 = myData.Tables[0].Rows[i]["Dato2"].ToString();
                                 Cabecera.Dato3 = myData.Tables[0].Rows[i]["Dato3"].ToString();
+                                Cabecera.CodigoBodega = int.Parse(myData.Tables[0].Rows[i]["CodigoBodega"].ToString());
                                 //--------------------------------------------
 
                                 //Busca detalles relacionados al IntId
@@ -1657,6 +1664,7 @@ namespace WS_itec2
                                 Cabecera.Dato1 = myData.Tables[0].Rows[i]["Dato1"].ToString();
                                 Cabecera.Dato2 = myData.Tables[0].Rows[i]["Dato2"].ToString();
                                 Cabecera.Dato3 = myData.Tables[0].Rows[i]["Dato3"].ToString();
+                                Cabecera.CodigoBodega = int.Parse(myData.Tables[0].Rows[i]["CodigoBodega"].ToString());
 
                                 //Busca los detalles relacionados al IntId y los agrega a la cabecera
                                 string CondicionBusqueda = "IntId = " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();

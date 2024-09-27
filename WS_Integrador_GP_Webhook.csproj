@@ -8,8 +8,8 @@
     <ProjectGuid>{6449AB2A-03B7-4BAB-A764-D835834F29A6}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WS_Integrador_GP_Webhook_COAGRA_07</RootNamespace>
-    <AssemblyName>WS_Integrador_GP_Webhook_COAGRA_07</AssemblyName>
+    <RootNamespace>WS_Integrador_GP_Webhook_LAFETE</RootNamespace>
+    <AssemblyName>WS_Integrador_GP_Webhook_LAFETE</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>

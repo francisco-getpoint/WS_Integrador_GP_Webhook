@@ -32,7 +32,7 @@
             // Service1
             // 
             this.CanPauseAndContinue = true;
-            this.ServiceName = "WS_Integrador_GP_Webhook_COAGRA_07";
+            this.ServiceName = "WS_Integrador_GP_Webhook_LAFETE";
         }
 
         #endregion
