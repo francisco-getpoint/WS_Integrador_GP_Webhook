@@ -5282,6 +5282,7 @@ namespace WS_itec2
                                 #endregion
 
                                 //Carga Variable para generar JSON ----------------------------------------------
+                                CabJson = new Cab_Cambio_Estado_Producto();
                                 Cabecera = new Cab2_Cambio_Estado_Producto();
 
                                 DateTime fecha;
@@ -5293,10 +5294,10 @@ namespace WS_itec2
                                 //--------------------------------------------
                                 Cabecera.LiberacionId = int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString().Trim());
                                 Cabecera.Empid = int.Parse(myData.Tables[0].Rows[i]["EmpId"].ToString().Trim());
-                                Cabecera.Motivo = int.Parse(myData.Tables[0].Rows[i]["EmpId"].ToString().Trim());
+                                Cabecera.Motivo = int.Parse(myData.Tables[0].Rows[i]["Valor1Cab"].ToString().Trim());
                                 Cabecera.Glosa = myData.Tables[0].Rows[i]["Texto1Cab"].ToString();
-                                Cabecera.EstadoProdOrig = int.Parse(myData.Tables[0].Rows[i]["Valor1Cab"].ToString().Trim());
-                                Cabecera.EstadoProdDest = int.Parse(myData.Tables[0].Rows[i]["Valor2Cab"].ToString().Trim());
+                                Cabecera.EstadoProdOrig = int.Parse(myData.Tables[0].Rows[i]["Valor2Cab"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
+                                Cabecera.EstadoProdDest = int.Parse(myData.Tables[0].Rows[i]["Valor3Cab"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
                                 //--------------------------------------------
 
                                 //Busca detalles relacionados al IntId
@@ -5324,14 +5325,14 @@ namespace WS_itec2
                                 var body = JsonConvert.SerializeObject(CabJson);
 
                                 //Guarda JSON que se envia ------------------
-                                LogInfo("ConfirmacionIngreso", " JSON Enviado", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString(), body.Trim());
+                                LogInfo(NombreProceso.Trim(), " JSON Enviado", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString(), body.Trim());
 
                                 request.AddParameter("application/json", body, ParameterType.RequestBody);
 
                                 //EJECUTA LLAMADO API ---------------------------
                                 IRestResponse response = client.Execute(request);
 
-                                LogInfo("ConfirmacionIngreso", NombreProceso.Trim() + " - Ejecuta api NumeroReferencia " + myData.Tables[0].Rows[i]["Folio"].ToString().Trim());
+                                LogInfo(NombreProceso.Trim(), NombreProceso.Trim() + " - Ejecuta api LiberacionId " + myData.Tables[0].Rows[i]["Folio"].ToString().Trim());
 
                                 HttpStatusCode CodigoRetorno = response.StatusCode;
                                 //JObject rss = JObject.Parse(response.Content); //recupera json de retorno
@@ -5352,7 +5353,7 @@ namespace WS_itec2
                                         //    "Descripcion": "Integracion OK"
                                         //}
 
-                                        LogInfo("ConfirmacionIngreso", "JSON respuesta recibido.", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia, response.Content.ToString());
+                                        LogInfo(NombreProceso.Trim(), "JSON respuesta recibido.", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString(), response.Content.ToString());
 
                                         JObject rss = JObject.Parse(response.Content); //recupera json de retorno
                                         string Resultado;
@@ -5380,7 +5381,7 @@ namespace WS_itec2
                                                         " .Resultado: " + Resultado.Trim() +
                                                         " .Descripcion: " + Descripcion.Trim();
 
-                                            LogInfo("ConfirmacionIngreso", Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia);
+                                            LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
                                         }
                                         else
                                         {
@@ -5393,15 +5394,15 @@ namespace WS_itec2
                                                         " .Resultado: " + Resultado.Trim() +
                                                         " .Descripcion: " + Descripcion.Trim();
 
-                                            LogInfo("ConfirmacionIngreso", Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia);
+                                            LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
                                         }
 
-                                        //Guarda respuesta en Dato2 RDM procesada -------------
-                                        result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
-                                                                                                                    EmpIdGlobal,
-                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
-                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
-                                                                                                                    "Resultado: " + Resultado.Trim() + " .Descripcion: " + Descripcion.Trim());
+                                        ////Guarda respuesta en Dato2 RDM procesada -------------
+                                        //result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                        //                                                                            EmpIdGlobal,
+                                        //                                                                            int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                        //                                                                            int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                        //                                                                            "Resultado: " + Resultado.Trim() + " .Descripcion: " + Descripcion.Trim());
                                     } //FIN si hay que esperar respuesta del Webhook ================
                                     else
                                     {
@@ -5411,7 +5412,7 @@ namespace WS_itec2
                                                                                                                                  ""); //Procesado
 
                                         Respuesta = "Integracion OK. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
-                                        LogInfo("ConfirmacionIngreso", myData.Tables[0].Rows[i]["NombreProceso"].ToString() + " - " + Respuesta);
+                                        LogInfo(NombreProceso.Trim(), myData.Tables[0].Rows[i]["NombreProceso"].ToString() + " - " + Respuesta);
                                     }
                                 }
                                 else
@@ -5433,15 +5434,15 @@ namespace WS_itec2
                                     Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
                                                 ", Status retorno: " + CodigoRetorno.ToString() + txtRespuesta;
 
-                                    LogInfo("ConfirmacionIngreso", Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
+                                    LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
 
                                     //Guarda respuesta en Dato2 RDM procesada -------------
-                                    //En este caso el error se guarda solamente en el DATO2 si la RDM ya semarcó definitivamente como error luego de los 3 reintentos
-                                    result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
-                                                                                                                EmpIdGlobal,
-                                                                                                                int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
-                                                                                                                int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
-                                                                                                                Respuesta);
+                                    ////En este caso el error se guarda solamente en el DATO2 si la RDM ya semarcó definitivamente como error luego de los 3 reintentos
+                                    //result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                    //                                                                            EmpIdGlobal,
+                                    //                                                                            int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                    //                                                                            int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                    //                                                                            Respuesta);
                                 }
                             } //FIN si cambia de IntId
 
