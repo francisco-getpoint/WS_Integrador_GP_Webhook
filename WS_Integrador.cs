@@ -498,6 +498,7 @@ namespace WS_itec2
         }
 
         //Ajuste Entrada / Salida ----------------------
+
         //[DataContract]
         //public partial class Cab_Ajuste
         //{
@@ -891,6 +892,76 @@ namespace WS_itec2
             public string description { get; set; }
         }
 
+        //Cambio de estado Producto ------------------------------------
+        [DataContract]
+        public partial class Cab_Cambio_Estado_Producto
+        {
+            [DataMember(Order = 1)]
+            public long count { get; set; }
+
+            [DataMember(Order = 2)]
+            public bool resultado { get; set; }
+
+            [DataMember(Order = 3)]
+            public string resultado_descripcion { get; set; }
+
+            [DataMember(Order = 4)]
+            public long resultado_codigo { get; set; }
+
+            [DataMember(Order = 5)]
+            public long limit { get; set; }
+
+            [DataMember(Order = 6)]
+            public long rowset { get; set; }
+
+            [DataMember(Order = 99)]
+            public List<Cab2_Cambio_Estado_Producto> cabeceras = new List<Cab2_Cambio_Estado_Producto>();
+        }
+
+        [DataContract]
+        public partial class Cab2_Cambio_Estado_Producto
+        {
+            [DataMember(Order = 1)]
+            public int LiberacionId { get; set; }
+
+            [DataMember(Order = 2)]
+            public int Empid { get; set; }
+
+            [DataMember(Order = 3)]
+            public int Motivo { get; set; }
+
+            [DataMember(Order = 4)]
+            public string Glosa { get; set; }
+
+            [DataMember(Order = 5)]
+            public int EstadoProdOrig { get; set; }
+
+            [DataMember(Order = 6)]
+            public int EstadoProdDest { get; set; }
+
+            [DataMember(Order = 99)]
+            public List<Det_Cambio_Estado_Producto> Items = new List<Det_Cambio_Estado_Producto>();
+        }
+
+        [DataContract]
+        public partial class Det_Cambio_Estado_Producto
+        {
+            [DataMember(Order = 1)]
+            public string CodigoArticulo { get; set; }
+
+            [DataMember(Order = 2)]
+            public string UnidadMedida { get; set; }
+
+            [DataMember(Order = 3)]
+            public string NumeroLote { get; set; }
+
+            [DataMember(Order = 4)]
+            public string FecVencto { get; set; }
+
+            [DataMember(Order = 5)]
+            public decimal Cantidad { get; set; }
+        }
+
         #endregion
 
         public Service1()
@@ -974,6 +1045,12 @@ namespace WS_itec2
                 {
                     //10: Llamado API para recuperar ZPL de Enviame y enviar a imprimir ------
                     ImprimeEtiquetaEnviame("IMPRIME_ETIQUETA_ENVIAME");
+                }
+
+                if (ConfigurationManager.AppSettings["Activa_CAMBIO_ESTADO_PRODUCTO"].ToString() == "True")
+                {
+                    //11: WebHook envia hacia ERP datos por un cambio de estado de un producto que sea realizado
+                    CambioEstadoProducto("CAMBIO_ESTADO_PRODUCTO");
                 }
 
                 this.tmServicio1.Start();
@@ -1687,6 +1764,7 @@ namespace WS_itec2
                                     Detalle.Dato1 = fila["Dato1Det"].ToString();
                                     Detalle.Dato2 = fila["Dato2Det"].ToString();
                                     Detalle.Dato3 = fila["Dato3Det"].ToString();
+                                    Detalle.Estado = int.Parse(fila["EstadoDet"].ToString());
 
                                     Cabecera.Items.Add(Detalle);
                                 }
@@ -5122,6 +5200,261 @@ namespace WS_itec2
             }
         }
 
+        // 11 - WEBHOOK CAMBIO ESTADO PRODUCTO ====================================================================================
+        //      sp_proc_INT_CambioEstadoProductoWEBHOOK: procedimiento que carga tabla con datos por un cambio de estado de un producto que sea realizado ----------
+        //      NombreProceso = CAMBIO_ESTADO_PRODUCTO
+        private void CambioEstadoProducto(string NombreProceso)
+        {
+            try
+            {
+                LogInfo(NombreProceso.Trim(), "Inicio ejecucion", true, false);
+
+                //para evitar error de seguridad en el llamado a la API ----------
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)768; //TLS 1.1 
+                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12; // para error No se puede crear un canal seguro SSL/TLS
+
+                string stEmpId = ConfigurationManager.AppSettings["EmpId"].ToString();
+                string result = "";
+                int EmpId;
+                int EmpIdGlobal;
+
+                Int32.TryParse(stEmpId, out EmpId);
+
+                //Extrae Cambios de estado de producto ----------
+                DataSet myData = WS_Integrador.Classes.model.InfF_Generador.ShowList_IntegraConfirmacionesJson(EmpId,
+                                                                                                               NombreProceso);
+                if (myData.Tables.Count > 0)
+                {
+                    if (myData.Tables[0].Rows.Count > 0)
+                    {
+                        Cab_Cambio_Estado_Producto CabJson = new Cab_Cambio_Estado_Producto();
+                        Cab2_Cambio_Estado_Producto Cabecera = new Cab2_Cambio_Estado_Producto();
+                        Det_Cambio_Estado_Producto Detalle = new Det_Cambio_Estado_Producto();
+
+                        string var_IntId = "";
+
+                        //Recorre los Cambios de estado de producto pendientes de enviar --------------
+                        for (int i = 0; i <= myData.Tables[0].Rows.Count - 1; i++)
+                        {
+                            //Cuando cambie de IntId debe cargar la estructura para enviar al Webhook -----
+                            if (myData.Tables[0].Rows[i]["IntId"].ToString().Trim() != var_IntId || var_IntId == "")
+                            {
+                                //Carga URL de la API Webhook del cliente correspondiente al proceso segun la empresa ----------
+                                #region Carga URL de la API Webhook del cliente correspondiente al proceso segun la empresa ----------
+                                var client = new RestClient(myData.Tables[0].Rows[i]["URL_EndPoint"].ToString().Trim());
+
+                                EmpIdGlobal = int.Parse(myData.Tables[0].Rows[i]["EmpIdGlobal"].ToString());
+
+                                client.Timeout = -1;
+
+                                //Indica el metodo de llamado de la API ----
+                                var request = new RestRequest(Method.GET);
+                                switch (myData.Tables[0].Rows[i]["Metodo"].ToString().Trim())
+                                {
+                                    case "GET":
+                                        request = new RestRequest(Method.GET); //consulta
+                                        break;
+                                    case "POST":
+                                        request = new RestRequest(Method.POST); //crea
+                                        break;
+                                    case "PUT":
+                                        request = new RestRequest(Method.PUT); //modifica
+                                        break;
+                                }
+
+                                //Trae informacion para headers segun el nombre proceso -------
+                                DataSet dsHeaders = WS_Integrador.Classes.model.InfF_Generador.ShowList_EndPointHeadersJson(EmpIdGlobal,
+                                                                                                                            EmpId,
+                                                                                                                            myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                            2);
+
+                                //Trae los headers (atributo y valor) necesarios para realizar el llamado a la api segun nombre de proceso que esta integrando ----------------
+                                if (dsHeaders.Tables.Count > 0)
+                                {
+                                    for (int k = 0; k <= dsHeaders.Tables[0].Rows.Count - 1; k++)
+                                    {
+                                        //agrega key y su valor -----------
+                                        request.AddHeader(dsHeaders.Tables[0].Rows[k]["myKey"].ToString().Trim(), dsHeaders.Tables[0].Rows[k]["myValue"].ToString().Trim());
+                                    }
+                                }
+
+                                #endregion
+
+                                //Carga Variable para generar JSON ----------------------------------------------
+                                Cabecera = new Cab2_Cambio_Estado_Producto();
+
+                                DateTime fecha;
+                                fecha = DateTime.Now;
+
+                                //Guarda IntId que esta procesando ---------
+                                var_IntId = myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+
+                                //--------------------------------------------
+                                Cabecera.LiberacionId = int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString().Trim());
+                                Cabecera.Empid = int.Parse(myData.Tables[0].Rows[i]["EmpId"].ToString().Trim());
+                                Cabecera.Motivo = int.Parse(myData.Tables[0].Rows[i]["EmpId"].ToString().Trim());
+                                Cabecera.Glosa = myData.Tables[0].Rows[i]["Texto1Cab"].ToString();
+                                Cabecera.EstadoProdOrig = int.Parse(myData.Tables[0].Rows[i]["Valor1Cab"].ToString().Trim());
+                                Cabecera.EstadoProdDest = int.Parse(myData.Tables[0].Rows[i]["Valor2Cab"].ToString().Trim());
+                                //--------------------------------------------
+
+                                //Busca detalles relacionados al IntId
+                                string CondicionBusqueda = "IntId = " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+
+                                DataRow[] resultado = myData.Tables[0].Select(CondicionBusqueda);
+
+                                foreach (DataRow fila in resultado)
+                                {
+                                    Detalle = new Det_Cambio_Estado_Producto();
+
+                                    Detalle.CodigoArticulo = fila["CodigoArticulo"].ToString(); // "5";
+                                    Detalle.UnidadMedida = fila["UnidadMedida"].ToString(); // "UN";
+                                    Detalle.NumeroLote = fila["NroSerieDesp"].ToString(); // "132561";
+                                    Detalle.FecVencto = DateTime.Parse(fila["FechaVectoDesp"].ToString()).ToString("dd-MM-yyyy"); //fila["FechaVectoDesp"].ToString(); 
+                                    Detalle.Cantidad = decimal.Parse(fila["Cantidad"].ToString()); // 150;
+                                    
+                                    Cabecera.Items.Add(Detalle);
+                                }
+
+                                CabJson.cabeceras.Add(Cabecera);
+
+                                //-------------------------------------------------------------
+                                //Crea body para llamado con estructura de variable cargada ---
+                                var body = JsonConvert.SerializeObject(CabJson);
+
+                                //Guarda JSON que se envia ------------------
+                                LogInfo("ConfirmacionIngreso", " JSON Enviado", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString(), body.Trim());
+
+                                request.AddParameter("application/json", body, ParameterType.RequestBody);
+
+                                //EJECUTA LLAMADO API ---------------------------
+                                IRestResponse response = client.Execute(request);
+
+                                LogInfo("ConfirmacionIngreso", NombreProceso.Trim() + " - Ejecuta api NumeroReferencia " + myData.Tables[0].Rows[i]["Folio"].ToString().Trim());
+
+                                HttpStatusCode CodigoRetorno = response.StatusCode;
+                                //JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+
+                                string Respuesta = "";
+
+                                //Si finalizó OK, retorna status 200 --------------------------
+                                if (CodigoRetorno.Equals(HttpStatusCode.OK))
+                                {
+                                    //====================== ESPECIAL ==========================
+                                    // si hay que esperar respuesta del Webhook ----------------
+                                    //==========================================================
+                                    if (ConfigurationManager.AppSettings["EsperaRespuestaWEBHOOK"].ToString() == "True")
+                                    {
+                                        //Debe venir la siguiente respuesta:
+                                        //{
+                                        //    "Resultado": "OK",
+                                        //    "Descripcion": "Integracion OK"
+                                        //}
+
+                                        LogInfo("ConfirmacionIngreso", "JSON respuesta recibido.", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia, response.Content.ToString());
+
+                                        JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+                                        string Resultado;
+                                        string Descripcion;
+
+                                        try
+                                        {
+                                            Resultado = rss["Resultado"].ToString(); //OK - ERROR
+                                            Descripcion = rss["Descripcion"].ToString(); //descripcion 
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Resultado = "ERROR";
+                                            Descripcion = "Respuesta no retorna estructura definida (Resultado y Descripcion)";
+                                        }
+
+                                        if (Resultado.Trim() == "OK")
+                                        {
+                                            //Actualiza estado de L_IntegraConfirmaciones, deja en estado Procesado 
+                                            result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                     2,
+                                                                                                                                     ""); //Procesado
+
+                                            Respuesta = "Integracion OK. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                        " .Resultado: " + Resultado.Trim() +
+                                                        " .Descripcion: " + Descripcion.Trim();
+
+                                            LogInfo("ConfirmacionIngreso", Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia);
+                                        }
+                                        else
+                                        {
+                                            //Actualiza estado de L_IntegraConfirmaciones, deja en estado Procesado 
+                                            result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                     3,
+                                                                                                                                     ""); //Procesado con error
+
+                                            Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                        " .Resultado: " + Resultado.Trim() +
+                                                        " .Descripcion: " + Descripcion.Trim();
+
+                                            LogInfo("ConfirmacionIngreso", Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.NumeroReferencia);
+                                        }
+
+                                        //Guarda respuesta en Dato2 RDM procesada -------------
+                                        result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                    EmpIdGlobal,
+                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                                                                                                    int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                                                                                                    "Resultado: " + Resultado.Trim() + " .Descripcion: " + Descripcion.Trim());
+                                    } //FIN si hay que esperar respuesta del Webhook ================
+                                    else
+                                    {
+                                        //Actualiza estado de L_IntegraConfirmaciones, deja en estado Procesado 
+                                        result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                 2,
+                                                                                                                                 ""); //Procesado
+
+                                        Respuesta = "Integracion OK. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                        LogInfo("ConfirmacionIngreso", myData.Tables[0].Rows[i]["NombreProceso"].ToString() + " - " + Respuesta);
+                                    }
+                                }
+                                else
+                                {
+                                    //Actualiza estado de L_IntegraConfirmaciones, deja en estado Procesado 
+                                    result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                             3,
+                                                                                                                             ""); //Procesado con error
+                                    string txtRespuesta = "";
+                                    try
+                                    {
+                                        txtRespuesta = " - " + response.Content.ToString().Substring(0, 100);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        txtRespuesta = "";
+                                    }
+
+                                    Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                ", Status retorno: " + CodigoRetorno.ToString() + txtRespuesta;
+
+                                    LogInfo("ConfirmacionIngreso", Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
+
+                                    //Guarda respuesta en Dato2 RDM procesada -------------
+                                    //En este caso el error se guarda solamente en el DATO2 si la RDM ya semarcó definitivamente como error luego de los 3 reintentos
+                                    result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                EmpIdGlobal,
+                                                                                                                int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                                                                                                int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                                                                                                Respuesta);
+                                }
+                            } //FIN si cambia de IntId
+
+                        } //FIN ciclo recorre Confirmaciones
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
+            }
+        }
         public static string GetGeneral(String URL, String Token, Int32 offset, string Llamado = "")
         {
             if (Llamado == "")
