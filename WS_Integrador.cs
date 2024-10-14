@@ -15,6 +15,7 @@ using System.Xml;
 using System.Runtime.Remoting.Messaging;
 using System.Diagnostics;
 using System.Xml.Linq;
+using static System.Net.Mime.MediaTypeNames;
 //using System.Linq;
 //using System.Xml.Linq;
 //using static System.Net.Mime.MediaTypeNames;
@@ -934,9 +935,6 @@ namespace WS_itec2
             public string Glosa { get; set; }
 
             [DataMember(Order = 5)]
-            public int EstadoProdOrig { get; set; }
-
-            [DataMember(Order = 6)]
             public int EstadoProdDest { get; set; }
 
             [DataMember(Order = 99)]
@@ -960,6 +958,15 @@ namespace WS_itec2
 
             [DataMember(Order = 5)]
             public decimal Cantidad { get; set; }
+
+            [DataMember(Order = 6)]
+            public int CodigoBodega { get; set; }
+
+            [DataMember(Order = 7)]
+            public string CodigoUbicacion { get; set; }
+
+            [DataMember(Order = 8)]
+            public int EstadoProdOrig { get; set; }
         }
 
         #endregion
@@ -5296,7 +5303,7 @@ namespace WS_itec2
                                 Cabecera.Empid = int.Parse(myData.Tables[0].Rows[i]["EmpId"].ToString().Trim());
                                 Cabecera.Motivo = int.Parse(myData.Tables[0].Rows[i]["Valor1Cab"].ToString().Trim());
                                 Cabecera.Glosa = myData.Tables[0].Rows[i]["Texto1Cab"].ToString();
-                                Cabecera.EstadoProdOrig = int.Parse(myData.Tables[0].Rows[i]["Valor2Cab"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
+                                //Cabecera.EstadoProdOrig = int.Parse(myData.Tables[0].Rows[i]["Valor2Cab"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
                                 Cabecera.EstadoProdDest = int.Parse(myData.Tables[0].Rows[i]["Valor3Cab"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
                                 //--------------------------------------------
 
@@ -5314,7 +5321,10 @@ namespace WS_itec2
                                     Detalle.NumeroLote = fila["NroSerieDesp"].ToString(); // "132561";
                                     Detalle.FecVencto = DateTime.Parse(fila["FechaVectoDesp"].ToString()).ToString("dd-MM-yyyy"); //fila["FechaVectoDesp"].ToString(); 
                                     Detalle.Cantidad = decimal.Parse(fila["Cantidad"].ToString()); // 150;
-                                    
+                                    Detalle.CodigoBodega = int.Parse(myData.Tables[0].Rows[i]["Valor1Det"].ToString().Trim()); //Valor1
+                                    Detalle.CodigoUbicacion = fila["Dato1Det"].ToString(); //Texto1
+                                    Detalle.EstadoProdOrig = int.Parse(myData.Tables[0].Rows[i]["EstadoDet"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
+
                                     Cabecera.Items.Add(Detalle);
                                 }
 
