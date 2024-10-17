@@ -1070,9 +1070,8 @@ namespace WS_itec2
             }
         }
 
-        // 1 - WEBHOOK CONFIRMACION SDR
-        //=====================================
-        //      sp_proc_INT_ConfirmaIngresoRDM: procedimiento que inserta los datos para el Webhook de Confirmacion de Recepcion -----  
+        // 1 - WEBHOOK CONFIRMACION SDR ====================================================================================================
+        //      sp_proc_INT_ConfirmaIngresoRDM: procedimiento que inserta los datos para el Webhook de Confirmacion de Recepcion -----------
         //      NombreProceso = CONFIRMA_RECEPCION
         private void ConfirmacionIngreso(string NombreProceso)
         {
@@ -1397,9 +1396,8 @@ namespace WS_itec2
             }
         }
 
-        // 2 - WEBHOOK CONFIRMACION SDD
-        //=====================================
-        //      sp_proc_INT_ConfirmacionODP: procedimiento que inserta los datos para el Webhook de Confirmacion de Despachos -----  
+        // 2 - WEBHOOK CONFIRMACION SDD ====================================================================================================
+        //      sp_proc_INT_ConfirmacionODP: procedimiento que inserta los datos para el Webhook de Confirmacion de Despachos --------------
         //      NombreProceso = CONFIRMA_DESPACHO
         private void ConfirmacionSalida(string NombreProceso)
         {
@@ -2354,9 +2352,9 @@ namespace WS_itec2
             }
         }
 
-        // 3 - WEBHOOK Confirmacion de Despachos mas cantidades faltantes en el despacho
-        //==============================================================================
-        //      sp_proc_INT_ConfirmacionODP_Faltante: procedimiento que inserta los datos para el Webhook de Confirmacion de Despachos mas cantidades faltantes-----  
+        // 3 - WEBHOOK Confirmacion de Despachos mas cantidades faltantes en el despacho ===================================================
+        //      sp_proc_INT_ConfirmacionODP_Faltante:
+        //      procedimiento que inserta los datos para el Webhook de Confirmacion de Despachos mas cantidades faltantes ------------------  
         private void CantidadesFaltantesDespacho(string NombreProceso)
         {
             try
@@ -2538,8 +2536,7 @@ namespace WS_itec2
             }
         }
 
-        // 4 - WEBHOOK ALERTA ======================
-        //=============================================
+        // 4 - WEBHOOK ALERTA ==============================================================================================================
         private void WebhookAlerta(string NombreProceso)
         {
             try
@@ -2703,8 +2700,7 @@ namespace WS_itec2
             }
         }
 
-        // 5 - WEBHOOK TRACKING SDD =============
-        //==========================================
+        // 5 - WEBHOOK TRACKING SDD ========================================================================================================
         private void WebhookTracking(string NombreProceso)
         {
             try
@@ -2880,9 +2876,9 @@ namespace WS_itec2
             }
         }
 
-        // 6 - WEBHOOK AJUSTE ===================
-        //==========================================
-        //      sp_proc_INT_ConfirmaAjuste: procedimiento que carga tabla de integracion con los datos para informar un Ajuste de Entrada, Salida o por Inventario -----------
+        // 6 - WEBHOOK AJUSTE ==============================================================================================================
+        //      sp_proc_INT_ConfirmaAjuste:
+        //      procedimiento que carga tabla de integracion con los datos para informar un Ajuste de Entrada, Salida o por Inventario -----
         //      NombreProceso = CONFIRMA_AJUSTE
         private void ConfirmacionAjuste(string NombreProceso)
         {
@@ -3149,8 +3145,8 @@ namespace WS_itec2
             }
         }
 
-        // 7 - WEBHOOK ANULA DESPACHO ====================================================================================
-        //      sp_proc_INT_AnulaPedidoWEBHOOK: procedimiento que carga tabla con datos para informar Anulacion de Pedido en Getpoint ----------
+        // 7 - WEBHOOK ANULA DESPACHO ======================================================================================================
+        //      sp_proc_INT_AnulaPedidoWEBHOOK: procedimiento que carga tabla con datos para informar Anulacion de Pedido en Getpoint ------
         //      NombreProceso = ANULA_PEDIDO
         private void AnulaPedido(string NombreProceso)
         {
@@ -3331,8 +3327,8 @@ namespace WS_itec2
             }
         }
 
-        // 8 - API CREA PEDIDO DRIVIN ====================================================================================
-        //      sp_proc_INT_CreaPedidoDrivin: procedimiento que carga tabla de integracion con datos para Crear Pedido de Driv.in -------
+        // 8 - API CREA PEDIDO DRIVIN ======================================================================================================
+        //      sp_proc_INT_CreaPedidoDrivin: procedimiento que carga tabla de integracion con datos para Crear Pedido de Driv.in ----------
         //      NombreProceso = CREA_PEDIDO_DRIVIN 
         private void CreaPedidoDrivin(string NombreProceso)
         {
@@ -4522,8 +4518,8 @@ namespace WS_itec2
             }
         }
 
-        // 9 - GENERA DTE FACELE ====================================================================================
-        //      sp_proc_INT_GeneraDTEFacele: procedimiento que extrae datos para generar DTE FACELE -------
+        // 9 - GENERA DTE FACELE ===========================================================================================================
+        //      sp_proc_INT_GeneraDTEFacele: procedimiento que extrae datos para generar DTE FACELE ----------------------------------------
         //      NombreProceso = GENERA_DTE_FACELE 
         private void GeneraDTEFacele(string NombreProceso)
         {
@@ -5207,8 +5203,9 @@ namespace WS_itec2
             }
         }
 
-        // 11 - WEBHOOK CAMBIO ESTADO PRODUCTO ====================================================================================
-        //      sp_proc_INT_CambioEstadoProductoWEBHOOK: procedimiento que carga tabla con datos por un cambio de estado de un producto que sea realizado ----------
+        // 11 - WEBHOOK CAMBIO ESTADO PRODUCTO =============================================================================================
+        //      sp_proc_INT_CambioEstadoProductoWEBHOOK:
+        //          procedimiento que carga tabla con datos por un cambio de estado de un producto que sea realizado -----------------------
         //      NombreProceso = CAMBIO_ESTADO_PRODUCTO
         private void CambioEstadoProducto(string NombreProceso)
         {
