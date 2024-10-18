@@ -967,6 +967,9 @@ namespace WS_itec2
 
             [DataMember(Order = 8)]
             public int EstadoProdOrig { get; set; }
+
+            [DataMember(Order = 9)]
+            public string Referencia { get; set; }
         }
 
         #endregion
@@ -5321,6 +5324,7 @@ namespace WS_itec2
                                     Detalle.CodigoBodega = int.Parse(myData.Tables[0].Rows[i]["Valor1Det"].ToString().Trim()); //Valor1
                                     Detalle.CodigoUbicacion = fila["Dato1Det"].ToString(); //Texto1
                                     Detalle.EstadoProdOrig = int.Parse(myData.Tables[0].Rows[i]["EstadoDet"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
+                                    Detalle.Referencia = fila["Dato2Det"].ToString();
 
                                     Cabecera.Items.Add(Detalle);
                                 }
