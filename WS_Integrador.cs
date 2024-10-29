@@ -1185,6 +1185,12 @@ namespace WS_itec2
                     CambioEstadoProducto("CAMBIO_ESTADO_PRODUCTO");
                 }
 
+                if (ConfigurationManager.AppSettings["Activa_RV_UPDATESERVICEDATA"].ToString() == "True")
+                {
+                    //12: WebHook que envia datos para generar documentos en Radio Victoria
+                    RadioVictoria_InterfaceSvc_UpdateServiceData("INT-EPICOR");
+                }
+
                 this.tmServicio1.Start();
             }
             catch (Exception ex)
@@ -5594,8 +5600,8 @@ namespace WS_itec2
 
         // 12 - WEBHOOK RADIOVICTORIA INTERFACESVC UPDATESERVICEDATA =======================================================================
         //      sp_gen_IntegraConfirmaciones_RegistroReclamo:
-        //          procedimiento que carga tabla con datos para webhook radio victoria -----------------------
-        //      NombreProceso = RV_UPDATESERVICEDATA
+        //          procedimiento que carga tabla con datos para generar documentos en radio victoria -----------------------
+        //      NombreProceso = INT-EPICOR
 
         //  Basic bGFjZXZlZG86VGVtcG9yYWwuMTM1
         private void RadioVictoria_InterfaceSvc_UpdateServiceData(string NombreProceso)
@@ -5742,14 +5748,14 @@ namespace WS_itec2
                                 {
                                     //separa datos de:
                                     //  RutEmisor | tipoDTE | formato | formato PDF
-                                    string[] PalabrasDet = myData.Tables[0].Rows[i]["Dato1Det"].ToString().Trim().Split(';');
+                                    string[] PalabrasDet = fila["Dato1Det"].ToString().Trim().Split(';');
 
                                     Detalle = new RadioVictoria_InterfaceSvc_UpdateServiceData_JobMtl();
 
-                                    Detalle.PartNum = Palabras[0];
-                                    Detalle.MtlQty = Palabras[1];
-                                    Detalle.WarehouseCode = Palabras[2];
-                                    Detalle.Bin = Palabras[3];
+                                    Detalle.PartNum = PalabrasDet[0];
+                                    Detalle.MtlQty = PalabrasDet[1];
+                                    Detalle.WarehouseCode = PalabrasDet[2];
+                                    Detalle.Bin = PalabrasDet[3];
 
                                     //Detalle.CodigoArticulo = fila["CodigoArticulo"].ToString(); // "5";
                                     //Detalle.UnidadMedida = fila["UnidadMedida"].ToString(); // "UN";
@@ -5771,7 +5777,7 @@ namespace WS_itec2
                                 var body = JsonConvert.SerializeObject(CabJson);
 
                                 //Guarda JSON que se envia ------------------
-                                LogInfo(NombreProceso.Trim(), " JSON Enviado", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString(), body.Trim());
+                                LogInfo(NombreProceso.Trim(), " JSON Enviado", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["IntId"].ToString(), body.Trim());
 
                                 request.AddParameter("application/json", body, ParameterType.RequestBody);
 
@@ -5799,7 +5805,7 @@ namespace WS_itec2
                                         //    "Descripcion": "Integracion OK"
                                         //}
 
-                                        LogInfo(NombreProceso.Trim(), "JSON respuesta recibido.", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString(), response.Content.ToString());
+                                        LogInfo(NombreProceso.Trim(), "JSON respuesta recibido.", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["IntId"].ToString(), response.Content.ToString());
 
                                         JObject rss = JObject.Parse(response.Content); //recupera json de retorno
                                         string Resultado;
@@ -5827,7 +5833,7 @@ namespace WS_itec2
                                                         " .Resultado: " + Resultado.Trim() +
                                                         " .Descripcion: " + Descripcion.Trim();
 
-                                            LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
+                                            LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["IntId"].ToString());
                                         }
                                         else
                                         {
@@ -5840,7 +5846,7 @@ namespace WS_itec2
                                                         " .Resultado: " + Resultado.Trim() +
                                                         " .Descripcion: " + Descripcion.Trim();
 
-                                            LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
+                                            LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["IntId"].ToString());
                                         }
 
                                         ////Guarda respuesta en Dato2 RDM procesada -------------
@@ -5880,7 +5886,7 @@ namespace WS_itec2
                                     Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
                                                 ", Status retorno: " + CodigoRetorno.ToString() + txtRespuesta;
 
-                                    LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
+                                    LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), myData.Tables[0].Rows[i]["IntId"].ToString());
 
                                     //Guarda respuesta en Dato2 RDM procesada -------------
                                     ////En este caso el error se guarda solamente en el DATO2 si la RDM ya semarcó definitivamente como error luego de los 3 reintentos

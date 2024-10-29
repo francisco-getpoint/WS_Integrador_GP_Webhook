@@ -41,8 +41,8 @@
             // serviceInstaller1
             // 
 
-            this.serviceInstaller1.DisplayName = "GP_Integrador_GP_Webhook_LAFETE";
-            this.serviceInstaller1.ServiceName = "WS_Integrador_GP_Webhook_LAFETE";
+            this.serviceInstaller1.DisplayName = "GP_Integrador_GP_Webhook_RADIOVICTORIA";
+            this.serviceInstaller1.ServiceName = "WS_Integrador_GP_Webhook_RADIOVICTORIA";
 
             // 
             // ProjectInstaller
