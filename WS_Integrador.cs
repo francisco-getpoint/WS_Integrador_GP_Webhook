@@ -972,6 +972,128 @@ namespace WS_itec2
             public string Referencia { get; set; }
         }
 
+        //RadioVictoria InterfaceSvc UpdateServiceData -----------------
+
+        [DataContract]
+        public partial class RadioVictoria_InterfaceSvc_UpdateServiceData_CAB
+        {
+            [DataMember(Order = 1)]
+            public RadioVictoria_InterfaceSvc_UpdateServiceData_ds ds { get; set; }
+        }
+
+        [DataContract]
+        public partial class RadioVictoria_InterfaceSvc_UpdateServiceData_ds
+        {
+            [DataMember(Order = 1)]
+
+            public List<RadioVictoria_InterfaceSvc_UpdateServiceData_Service> Service = new List<RadioVictoria_InterfaceSvc_UpdateServiceData_Service>();
+
+            [DataMember(Order = 2)]
+
+            public List<RadioVictoria_InterfaceSvc_UpdateServiceData_JobMtl> JobMtl = new List<RadioVictoria_InterfaceSvc_UpdateServiceData_JobMtl>();
+
+            [DataMember(Order = 3)]
+            public int INCallNum { get; set; }
+        }
+
+        [DataContract]
+        public partial class RadioVictoria_InterfaceSvc_UpdateServiceData_Service
+        {
+            [DataMember(Order = 1)]
+            public string ID { get; set; }
+
+            [DataMember(Order = 2)]
+            public string Description { get; set; }
+
+            [DataMember(Order = 3)]
+            public DateTime CreateDate { get; set; }
+
+            [DataMember(Order = 4)]
+            public DateTime CallDate { get; set; }
+
+            [DataMember(Order = 5)]
+            public DateTime ProcessDateTime { get; set; }
+
+            [DataMember(Order = 6)]
+            public string RV_OTSEmailAddress_c { get; set; }
+
+            [DataMember(Order = 7)]
+            public string CustomerID { get; set; }
+
+            [DataMember(Order = 8)]
+            public string OTSContact { get; set; }
+
+            [DataMember(Order = 9)]
+            public string OTSName { get; set; }
+
+            [DataMember(Order = 10)]
+            public string DocCompra_c { get; set; }
+
+            [DataMember(Order = 11)]
+            public string OTSAddress1 { get; set; }
+
+            [DataMember(Order = 12)]
+            public string OTSAddress2 { get; set; }
+
+            [DataMember(Order = 13)]
+            public string OTSAddress3 { get; set; }
+
+            [DataMember(Order = 14)]
+            public string OTSCity { get; set; }
+
+            [DataMember(Order = 15)]
+            public string OTSPhoneNum { get; set; }
+
+            [DataMember(Order = 16)]
+            public string OTSFaxNum { get; set; }
+
+            [DataMember(Order = 17)]
+            public string OTSTaxRegionCode { get; set; }
+
+            [DataMember(Order = 18)]
+            public string ShippingAddress { get; set; }
+
+            [DataMember(Order = 19)]
+            public string CallType { get; set; }
+
+            [DataMember(Order = 20)]
+            public string PartNumber { get; set; }
+
+            [DataMember(Order = 21)]
+            public string FechaCompra_c { get; set; }
+
+            [DataMember(Order = 22)]
+            public string PartDescription { get; set; }
+
+            [DataMember(Order = 23)]
+            public string SerialNumber { get; set; }
+
+            [DataMember(Order = 24)]
+            public string IssueTopicID1 { get; set; }
+
+            [DataMember(Order = 25)]
+            public string IssueTopicID2 { get; set; }
+
+            [DataMember(Order = 26)]
+            public string NroReclamoWMS_c { get; set; }
+        }
+
+        [DataContract]
+        public partial class RadioVictoria_InterfaceSvc_UpdateServiceData_JobMtl
+        {
+            [DataMember(Order = 1)]
+            public string PartNum { get; set; }
+
+            [DataMember(Order = 2)]
+            public string MtlQty { get; set; }
+
+            [DataMember(Order = 3)]
+            public string WarehouseCode { get; set; }
+
+            [DataMember(Order = 4)]
+            public string Bin { get; set; }
+        }
+
         #endregion
 
         public Service1()
@@ -1222,6 +1344,8 @@ namespace WS_itec2
                                 Cabecera.TipoReferencia = myData.Tables[0].Rows[i]["TipoReferencia"].ToString();
                                 Cabecera.NumeroReferencia = myData.Tables[0].Rows[i]["NumeroReferencia"].ToString();
                                 Cabecera.FechaReferencia = DateTime.Parse(myData.Tables[0].Rows[i]["FechaReferencia"].ToString()).ToString("dd-MM-yyyy"); // "30-05-2022";
+                                Cabecera.RutProveedor = myData.Tables[0].Rows[i]["RutCliente"].ToString(); ;
+                                Cabecera.GlosaRdm = "";
                                 Cabecera.TipoSolicitud = int.Parse(myData.Tables[0].Rows[i]["TipoSolicitud"].ToString());
                                 Cabecera.Dato1 = myData.Tables[0].Rows[i]["Dato1"].ToString();
                                 Cabecera.Dato2 = myData.Tables[0].Rows[i]["Dato2"].ToString();
@@ -5467,6 +5591,321 @@ namespace WS_itec2
                 LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
             }
         }
+
+        // 12 - WEBHOOK RADIOVICTORIA INTERFACESVC UPDATESERVICEDATA =======================================================================
+        //      sp_gen_IntegraConfirmaciones_RegistroReclamo:
+        //          procedimiento que carga tabla con datos para webhook radio victoria -----------------------
+        //      NombreProceso = RV_UPDATESERVICEDATA
+
+        //  Basic bGFjZXZlZG86VGVtcG9yYWwuMTM1
+        private void RadioVictoria_InterfaceSvc_UpdateServiceData(string NombreProceso)
+        {
+            try
+            {
+                NombreProceso = "INT-EPICOR";
+
+                LogInfo(NombreProceso.Trim(), "Inicio ejecucion", true, false);
+
+                //para evitar error de seguridad en el llamado a la API ----------
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
+                ServicePointManager.SecurityProtocol = (SecurityProtocolType)768; //TLS 1.1 
+                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12; // para error No se puede crear un canal seguro SSL/TLS
+
+                string stEmpId = ConfigurationManager.AppSettings["EmpId"].ToString();
+                string result = "";
+                int EmpId;
+                int EmpIdGlobal;
+
+                Int32.TryParse(stEmpId, out EmpId);
+
+                //Extrae Cambios de estado de producto ----------
+                DataSet myData = WS_Integrador.Classes.model.InfF_Generador.ShowList_IntegraConfirmacionesJson(EmpId,
+                                                                                                               NombreProceso);
+                if (myData.Tables.Count > 0)
+                {
+                    if (myData.Tables[0].Rows.Count > 0)
+                    {
+                        RadioVictoria_InterfaceSvc_UpdateServiceData_CAB CabJson = new RadioVictoria_InterfaceSvc_UpdateServiceData_CAB();
+                        RadioVictoria_InterfaceSvc_UpdateServiceData_ds Cabecera_ds = new RadioVictoria_InterfaceSvc_UpdateServiceData_ds();
+                        RadioVictoria_InterfaceSvc_UpdateServiceData_Service Cabecera = new RadioVictoria_InterfaceSvc_UpdateServiceData_Service();
+                        RadioVictoria_InterfaceSvc_UpdateServiceData_JobMtl Detalle = new RadioVictoria_InterfaceSvc_UpdateServiceData_JobMtl();
+
+                        string var_IntId = "";
+
+                        //Recorre los Cambios de estado de producto pendientes de enviar --------------
+                        for (int i = 0; i <= myData.Tables[0].Rows.Count - 1; i++)
+                        {
+                            //Cuando cambie de IntId debe cargar la estructura para enviar al Webhook -----
+                            if (myData.Tables[0].Rows[i]["IntId"].ToString().Trim() != var_IntId || var_IntId == "")
+                            {
+                                //Carga URL de la API Webhook del cliente correspondiente al proceso segun la empresa ----------
+                                #region Carga URL de la API Webhook del cliente correspondiente al proceso segun la empresa ----------
+                                var client = new RestClient(myData.Tables[0].Rows[i]["URL_EndPoint"].ToString().Trim());
+
+                                EmpIdGlobal = int.Parse(myData.Tables[0].Rows[i]["EmpIdGlobal"].ToString());
+
+                                client.Timeout = -1;
+
+                                //Indica el metodo de llamado de la API ----
+                                var request = new RestRequest(Method.GET);
+                                switch (myData.Tables[0].Rows[i]["Metodo"].ToString().Trim())
+                                {
+                                    case "GET":
+                                        request = new RestRequest(Method.GET); //consulta
+                                        break;
+                                    case "POST":
+                                        request = new RestRequest(Method.POST); //crea
+                                        break;
+                                    case "PUT":
+                                        request = new RestRequest(Method.PUT); //modifica
+                                        break;
+                                }
+
+                                //Trae informacion para headers segun el nombre proceso -------
+                                DataSet dsHeaders = WS_Integrador.Classes.model.InfF_Generador.ShowList_EndPointHeadersJson(EmpIdGlobal,
+                                                                                                                            EmpId,
+                                                                                                                            myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                                                                                                            2);
+
+                                //Trae los headers (atributo y valor) necesarios para realizar el llamado a la api segun nombre de proceso que esta integrando ----------------
+                                if (dsHeaders.Tables.Count > 0)
+                                {
+                                    for (int k = 0; k <= dsHeaders.Tables[0].Rows.Count - 1; k++)
+                                    {
+                                        //agrega key y su valor -----------
+                                        request.AddHeader(dsHeaders.Tables[0].Rows[k]["myKey"].ToString().Trim(), dsHeaders.Tables[0].Rows[k]["myValue"].ToString().Trim());
+                                    }
+                                }
+
+                                #endregion
+
+                                //Carga Variable para generar JSON ----------------------------------------------
+                                CabJson = new RadioVictoria_InterfaceSvc_UpdateServiceData_CAB();
+                                Cabecera_ds = new RadioVictoria_InterfaceSvc_UpdateServiceData_ds();
+                                Cabecera = new RadioVictoria_InterfaceSvc_UpdateServiceData_Service();
+
+                                DateTime fecha;
+                                fecha = DateTime.Now;
+
+                                //Guarda IntId que esta procesando ---------
+                                var_IntId = myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+
+                                //--------------------------------------------
+                                //separa datos de:
+                                //  RutEmisor | tipoDTE | formato | formato PDF
+                                string[] Palabras = myData.Tables[0].Rows[i]["Texto1Cab"].ToString().Trim().Split(';');
+
+                                Cabecera.ID = Palabras[0];
+                                Cabecera.Description = Palabras[1];
+                                Cabecera.CreateDate = DateTime.Parse(Palabras[2]);
+                                Cabecera.CallDate = DateTime.Parse(Palabras[3]);
+                                Cabecera.ProcessDateTime = DateTime.Parse(Palabras[4]);
+                                Cabecera.RV_OTSEmailAddress_c = Palabras[5];
+                                Cabecera.CustomerID = Palabras[6];
+                                Cabecera.OTSContact = Palabras[7];
+                                Cabecera.OTSName = Palabras[8];
+                                Cabecera.DocCompra_c = Palabras[9];
+                                Cabecera.OTSAddress1 = Palabras[10];
+                                Cabecera.OTSAddress2 = Palabras[11];
+                                Cabecera.OTSAddress3 = Palabras[12];
+                                Cabecera.OTSCity = Palabras[13];
+                                Cabecera.OTSPhoneNum = Palabras[14];
+                                Cabecera.OTSFaxNum = Palabras[15];
+                                Cabecera.OTSTaxRegionCode = Palabras[16];
+                                Cabecera.ShippingAddress = Palabras[17];
+                                Cabecera.CallType = Palabras[18];
+                                Cabecera.PartNumber = Palabras[19];
+                                Cabecera.FechaCompra_c = Palabras[20];
+                                Cabecera.PartDescription = Palabras[21];
+                                Cabecera.SerialNumber = Palabras[22];
+                                Cabecera.IssueTopicID1 = Palabras[23];
+                                Cabecera.IssueTopicID2 = Palabras[24];
+                                Cabecera.NroReclamoWMS_c = Palabras[25];
+
+                                //Cabecera.LiberacionId = int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString().Trim());
+                                //Cabecera.Empid = int.Parse(myData.Tables[0].Rows[i]["EmpId"].ToString().Trim());
+                                //Cabecera.Motivo = int.Parse(myData.Tables[0].Rows[i]["Valor1Cab"].ToString().Trim());
+                                //Cabecera.Glosa = myData.Tables[0].Rows[i]["Texto1Cab"].ToString();
+                                ////Cabecera.EstadoProdOrig = int.Parse(myData.Tables[0].Rows[i]["Valor2Cab"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
+                                //Cabecera.EstadoProdDest = int.Parse(myData.Tables[0].Rows[i]["Valor3Cab"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
+
+                                Cabecera_ds.Service.Add(Cabecera);
+
+                                //--------------------------------------------
+
+                                //Busca detalles relacionados al IntId
+                                string CondicionBusqueda = "IntId = " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+
+                                DataRow[] resultado = myData.Tables[0].Select(CondicionBusqueda);
+
+                                foreach (DataRow fila in resultado)
+                                {
+                                    //separa datos de:
+                                    //  RutEmisor | tipoDTE | formato | formato PDF
+                                    string[] PalabrasDet = myData.Tables[0].Rows[i]["Dato1Det"].ToString().Trim().Split(';');
+
+                                    Detalle = new RadioVictoria_InterfaceSvc_UpdateServiceData_JobMtl();
+
+                                    Detalle.PartNum = Palabras[0];
+                                    Detalle.MtlQty = Palabras[1];
+                                    Detalle.WarehouseCode = Palabras[2];
+                                    Detalle.Bin = Palabras[3];
+
+                                    //Detalle.CodigoArticulo = fila["CodigoArticulo"].ToString(); // "5";
+                                    //Detalle.UnidadMedida = fila["UnidadMedida"].ToString(); // "UN";
+                                    //Detalle.NumeroLote = fila["NroSerieDesp"].ToString(); // "132561";
+                                    //Detalle.FecVencto = DateTime.Parse(fila["FechaVectoDesp"].ToString()).ToString("dd-MM-yyyy"); //fila["FechaVectoDesp"].ToString(); 
+                                    //Detalle.Cantidad = decimal.Parse(fila["Cantidad"].ToString()); // 150;
+                                    //Detalle.CodigoBodega = int.Parse(myData.Tables[0].Rows[i]["Valor1Det"].ToString().Trim()); //Valor1
+                                    //Detalle.CodigoUbicacion = fila["Dato1Det"].ToString(); //Texto1
+                                    //Detalle.EstadoProdOrig = int.Parse(myData.Tables[0].Rows[i]["EstadoDet"].ToString().Trim().Replace(",000", "").Replace(".000", ""));
+                                    //Detalle.Referencia = fila["Dato2Det"].ToString();
+
+                                    Cabecera_ds.JobMtl.Add(Detalle);
+                                }
+
+                                CabJson.ds = Cabecera_ds;
+
+                                //-------------------------------------------------------------
+                                //Crea body para llamado con estructura de variable cargada ---
+                                var body = JsonConvert.SerializeObject(CabJson);
+
+                                //Guarda JSON que se envia ------------------
+                                LogInfo(NombreProceso.Trim(), " JSON Enviado", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString(), body.Trim());
+
+                                request.AddParameter("application/json", body, ParameterType.RequestBody);
+
+                                //EJECUTA LLAMADO API ---------------------------
+                                IRestResponse response = client.Execute(request);
+
+                                LogInfo(NombreProceso.Trim(), NombreProceso.Trim() + " - Ejecuta api LiberacionId " + myData.Tables[0].Rows[i]["Folio"].ToString().Trim());
+
+                                HttpStatusCode CodigoRetorno = response.StatusCode;
+                                //JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+
+                                string Respuesta = "";
+
+                                //Si finalizó OK, retorna status 200 --------------------------
+                                if (CodigoRetorno.Equals(HttpStatusCode.OK))
+                                {
+                                    //====================== ESPECIAL ==========================
+                                    // si hay que esperar respuesta del Webhook ----------------
+                                    //==========================================================
+                                    if (ConfigurationManager.AppSettings["EsperaRespuestaWEBHOOK"].ToString() == "True")
+                                    {
+                                        //Debe venir la siguiente respuesta:
+                                        //{
+                                        //    "Resultado": "OK",
+                                        //    "Descripcion": "Integracion OK"
+                                        //}
+
+                                        LogInfo(NombreProceso.Trim(), "JSON respuesta recibido.", true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString(), response.Content.ToString());
+
+                                        JObject rss = JObject.Parse(response.Content); //recupera json de retorno
+                                        string Resultado;
+                                        string Descripcion;
+
+                                        try
+                                        {
+                                            Resultado = rss["Resultado"].ToString(); //OK - ERROR
+                                            Descripcion = rss["Descripcion"].ToString(); //descripcion 
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Resultado = "ERROR";
+                                            Descripcion = "Respuesta no retorna estructura definida (Resultado y Descripcion)";
+                                        }
+
+                                        if (Resultado.Trim() == "OK")
+                                        {
+                                            //Actualiza estado de L_IntegraConfirmaciones, deja en estado Procesado 
+                                            result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                     2,
+                                                                                                                                     ""); //Procesado
+
+                                            Respuesta = "Integracion OK. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                        " .Resultado: " + Resultado.Trim() +
+                                                        " .Descripcion: " + Descripcion.Trim();
+
+                                            LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
+                                        }
+                                        else
+                                        {
+                                            //Actualiza estado de L_IntegraConfirmaciones, deja en estado Procesado 
+                                            result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                     3,
+                                                                                                                                     ""); //Procesado con error
+
+                                            Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                        " .Resultado: " + Resultado.Trim() +
+                                                        " .Descripcion: " + Descripcion.Trim();
+
+                                            LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
+                                        }
+
+                                        ////Guarda respuesta en Dato2 RDM procesada -------------
+                                        //result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                        //                                                                            EmpIdGlobal,
+                                        //                                                                            int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                        //                                                                            int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                        //                                                                            "Resultado: " + Resultado.Trim() + " .Descripcion: " + Descripcion.Trim());
+                                    } //FIN si hay que esperar respuesta del Webhook ================
+                                    else
+                                    {
+                                        //Actualiza estado de L_IntegraConfirmaciones, deja en estado Procesado 
+                                        result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                                 2,
+                                                                                                                                 ""); //Procesado
+
+                                        Respuesta = "Integracion OK. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim();
+                                        LogInfo(NombreProceso.Trim(), myData.Tables[0].Rows[i]["NombreProceso"].ToString() + " - " + Respuesta);
+                                    }
+                                }
+                                else
+                                {
+                                    //Actualiza estado de L_IntegraConfirmaciones, deja en estado Procesado 
+                                    result = WS_Integrador.Classes.model.InfF_Generador.ActualizaEstadoIntegraConfirmaciones(int.Parse(myData.Tables[0].Rows[i]["IntId"].ToString()),
+                                                                                                                             3,
+                                                                                                                             ""); //Procesado con error
+                                    string txtRespuesta = "";
+                                    try
+                                    {
+                                        txtRespuesta = " - " + response.Content.ToString().Substring(0, 100);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        txtRespuesta = "";
+                                    }
+
+                                    Respuesta = "Error. IntId: " + myData.Tables[0].Rows[i]["IntId"].ToString().Trim() +
+                                                ", Status retorno: " + CodigoRetorno.ToString() + txtRespuesta;
+
+                                    LogInfo(NombreProceso.Trim(), Respuesta, true, true, myData.Tables[0].Rows[i]["NombreProceso"].ToString(), Cabecera.LiberacionId.ToString());
+
+                                    //Guarda respuesta en Dato2 RDM procesada -------------
+                                    ////En este caso el error se guarda solamente en el DATO2 si la RDM ya semarcó definitivamente como error luego de los 3 reintentos
+                                    //result = WS_Integrador.Classes.model.InfF_Generador.InformaRespuestaWebhook(myData.Tables[0].Rows[i]["NombreProceso"].ToString(),
+                                    //                                                                            EmpIdGlobal,
+                                    //                                                                            int.Parse(myData.Tables[0].Rows[i]["Folio"].ToString()),
+                                    //                                                                            int.Parse(myData.Tables[0].Rows[i]["FolioRel"].ToString()),
+                                    //                                                                            Respuesta);
+                                }
+                            } //FIN si cambia de IntId
+
+                        } //FIN ciclo recorre Confirmaciones
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogInfo(NombreProceso, "Error: " + ex.Message.Trim(), true, true, NombreProceso.Trim());
+            }
+        }
+
+
+
+
         public static string GetGeneral(String URL, String Token, Int32 offset, string Llamado = "")
         {
             if (Llamado == "")
