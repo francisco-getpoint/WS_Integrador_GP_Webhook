@@ -5784,7 +5784,7 @@ namespace WS_itec2
                                 //EJECUTA LLAMADO API ---------------------------
                                 IRestResponse response = client.Execute(request);
 
-                                LogInfo(NombreProceso.Trim(), NombreProceso.Trim() + " - Ejecuta api LiberacionId " + myData.Tables[0].Rows[i]["Folio"].ToString().Trim());
+                                LogInfo(NombreProceso.Trim(), NombreProceso.Trim() + " - Ejecuta api RV " + myData.Tables[0].Rows[i]["Folio"].ToString().Trim());
 
                                 HttpStatusCode CodigoRetorno = response.StatusCode;
                                 //JObject rss = JObject.Parse(response.Content); //recupera json de retorno
